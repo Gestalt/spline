@@ -1,0 +1,5 @@
+*.cbproj
+*.local
+*.res
+/Win32
+/build
