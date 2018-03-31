@@ -76,6 +76,65 @@ const std::vector<float> getNearestPoints(const std::vector<float>& src, float t
     return res;
 }
 
+class TableBasedFunction {
+    public:
+        explicit TableBasedFunction(const std::vector<float>& points_) : points(points_) {
+            std::sort(points.begin(), points.end());
+            points.erase(std::unique(points.begin(), points.end()),
+                points.end());
+        }
+        const std::vector<float>& getPoints() {
+            return points;
+        }
+    private:
+        std::vector<float> points;
+};
+
+class ATableBasedFunction: public Test {
+public:
+    void SetUp() {
+    }
+};
+
+MATCHER(isSorted, "") {
+  std::vector<float>::const_iterator first = arg.begin();
+  std::vector<float>::const_iterator last = arg.end();
+
+    if (first == last) {
+        return true;
+    }
+    std::vector<float>::const_iterator next = first;
+    while (++next!=last) {
+        if (*next<*first) {
+            return false;
+        }
+        ++first;
+  }
+  return true;
+}
+
+TEST_F(ATableBasedFunction, SortsArgumentsAtConstruction) {
+    std::vector<float> args;
+    args.push_back(0.f);
+    args.push_back(2.f);
+    args.push_back(1.f);
+
+    TableBasedFunction func(args);
+
+    ASSERT_THAT(func.getPoints(), isSorted());
+}
+
+TEST_F(ATableBasedFunction, DeletesDuplicatedArgumentsAtConstruction) {
+    std::vector<float> args;
+    args.push_back(0.f);
+    args.push_back(1.f);
+    args.push_back(1.f);
+
+    TableBasedFunction func(args);
+
+    ASSERT_THAT(func.getPoints(), ElementsAre(0.f, 1.f));
+}
+
 class GetNearestPoints: public Test {
 public:
     std::vector<float> vec;
