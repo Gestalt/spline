@@ -350,6 +350,60 @@ TEST(LinearInterpolationAlgorithm, ReturnsValueOnLineBetweenPoints) {
     ASSERT_THAT(spline.interpolate(2.f), FloatEq(2.f));
 }
 
+class QuadricInterpolation {
+    public:
+        QuadricInterpolation(TableBasedFunction* function_) // const correctness
+            : function(function_) {
+        }
+        const float interpolate(float arg) const {
+            if (!function) {
+                assert(false);
+                return 0.f;
+            }
+            const std::vector<Point>& points = function->getPoints();
+            const std::vector<Point> res = getNearestPoints(points, arg, 3);
+
+            if (!res.empty()) {
+                assert(res.size() == 3);
+
+                float x = arg;
+
+                float x0 = res[0].x;
+                float x1 = res[1].x;
+                float x2 = res[2].x;
+
+                float y0 = res[0].y;
+                float y1 = res[1].y;
+                float y2 = res[2].y;
+
+                float c0 = ((x - x1) * (x - x2)) / ((x0 - x1) * (x0 - x2));
+                float c1 = ((x - x0) * (x - x2)) / ((x1 - x0) * (x1 - x2));
+                float c2 = ((x - x0) * (x - x1)) / ((x2 - x0) * (x2 - x1));
+
+                float y = y0 * c0 + y1 * c1 + y2 * c2;
+
+                return y;
+            }
+
+            assert(false);
+
+            return 0.f;
+        }
+    private:
+        TableBasedFunction* function;
+};
+
+TEST(QuadricInterpolationAlgorithm, ReturnsValueOnParabola) {
+    TableBasedFunction function;
+    function.appendPoint(Point(1.f, 1.f));
+    function.appendPoint(Point(2.f, 4.f));
+    function.appendPoint(Point(4.f, 16.f));
+
+    QuadricInterpolation spline(&function);
+
+    ASSERT_THAT(spline.interpolate(3.f), FloatEq(9.f));
+}
+
 int main(int argc, char **argv) {
     ::testing::InitGoogleMock(&argc, argv);
     return RUN_ALL_TESTS();
