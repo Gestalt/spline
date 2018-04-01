@@ -267,17 +267,28 @@ TEST_F(GetNearestPoints, ReturnsCorrectPointsAtLowerBoundForParabolicRequest) {
     ));
 }
 
-class NeighborInterpolation {    public:
-        NeighborInterpolation(TableBasedFunction* function_) // const correctness
+class InterpolationAlgorithm {
+    public:
+        InterpolationAlgorithm(TableBasedFunction* function_)
             : function(function_) {
+            }
+        virtual ~InterpolationAlgorithm() {}
+        virtual const float interpolate(float argument) const = 0;
+    protected:
+        TableBasedFunction* function;
+};
+
+class NeighborInterpolationAlgorithm : public InterpolationAlgorithm {    public:
+        NeighborInterpolationAlgorithm(TableBasedFunction* function)
+            : InterpolationAlgorithm(function) {
         }
-        const float interpolate(float arg) const {
+        const float interpolate(float argument) const {
             if (!function) {
                 assert(false);
                 return 0.f;
             }
             const std::vector<Point>& points = function->getPoints();
-            const std::vector<Point> res = getNearestPoints(points, arg, 1);
+            const std::vector<Point> res = getNearestPoints(points, argument, 1);
 
             if (!res.empty()) {
                 return res.front().y;
@@ -287,37 +298,35 @@ TEST_F(GetNearestPoints, ReturnsCorrectPointsAtLowerBoundForParabolicRequest) {
 
             return 0.f;
         }
-    private:
-        TableBasedFunction* function;
-};TEST(NeighborInterpolationAlgorithm, ReturnsNearestValueNextToArgument) {
+};TEST(NeighborInterpolation, ReturnsNearestValueNextToArgument) {
     TableBasedFunction function;
 
     function.appendPoint(Point(1.f, 1.f));
     function.appendPoint(Point(2.f, 2.f));
 
-    NeighborInterpolation spline(&function);
+    NeighborInterpolationAlgorithm spline(&function);
 
     ASSERT_THAT(spline.interpolate(1.1f), FloatEq(1.f));
     ASSERT_THAT(spline.interpolate(1.9f), FloatEq(2.f));
 }
 
-class LinearInterpolation {
+class LinearInterpolationAlgorithm : public InterpolationAlgorithm  {
     public:
-        LinearInterpolation(TableBasedFunction* function_) // const correctness
-            : function(function_) {
+        LinearInterpolationAlgorithm(TableBasedFunction* function)
+            : InterpolationAlgorithm(function) {
         }
-        const float interpolate(float arg) const {
+        const float interpolate(float argument) const {
             if (!function) {
                 assert(false);
                 return 0.f;
             }
             const std::vector<Point>& points = function->getPoints();
-            const std::vector<Point> res = getNearestPoints(points, arg, 2);
+            const std::vector<Point> res = getNearestPoints(points, argument, 2);
 
             if (!res.empty()) {
                 assert(res.size() == 2);
 
-                float x = arg;
+                float x = argument;
 
                 float x0 = res[0].x;
                 float x1 = res[1].x;
@@ -336,37 +345,35 @@ class LinearInterpolation {
 
             return 0.f;
         }
-    private:
-        TableBasedFunction* function;
 };
 
-TEST(LinearInterpolationAlgorithm, ReturnsValueOnLineBetweenPoints) {
+TEST(LinearInterpolation, ReturnsValueOnLineBetweenPoints) {
     TableBasedFunction function;
     function.appendPoint(Point(1.f, 1.f));
     function.appendPoint(Point(3.f, 3.f));
 
-    LinearInterpolation spline(&function);
+    LinearInterpolationAlgorithm spline(&function);
 
     ASSERT_THAT(spline.interpolate(2.f), FloatEq(2.f));
 }
 
-class QuadricInterpolation {
+class QuadricInterpolationAlgorithm : public InterpolationAlgorithm  {
     public:
-        QuadricInterpolation(TableBasedFunction* function_) // const correctness
-            : function(function_) {
+        QuadricInterpolationAlgorithm(TableBasedFunction* function)
+            : InterpolationAlgorithm(function) {
         }
-        const float interpolate(float arg) const {
+        const float interpolate(float argument) const {
             if (!function) {
                 assert(false);
                 return 0.f;
             }
             const std::vector<Point>& points = function->getPoints();
-            const std::vector<Point> res = getNearestPoints(points, arg, 3);
+            const std::vector<Point> res = getNearestPoints(points, argument, 3);
 
             if (!res.empty()) {
                 assert(res.size() == 3);
 
-                float x = arg;
+                float x = argument;
 
                 float x0 = res[0].x;
                 float x1 = res[1].x;
@@ -389,19 +396,58 @@ class QuadricInterpolation {
 
             return 0.f;
         }
-    private:
-        TableBasedFunction* function;
 };
 
-TEST(QuadricInterpolationAlgorithm, ReturnsValueOnParabola) {
+TEST(QuadricInterpolation, ReturnsValueOnParabola) {
     TableBasedFunction function;
     function.appendPoint(Point(1.f, 1.f));
     function.appendPoint(Point(2.f, 4.f));
     function.appendPoint(Point(4.f, 16.f));
 
-    QuadricInterpolation spline(&function);
+    QuadricInterpolationAlgorithm spline(&function);
 
     ASSERT_THAT(spline.interpolate(3.f), FloatEq(9.f));
+}
+
+class InterpolationAlgorithmFactory {
+    public:
+        static InterpolationAlgorithm* create(const std::string& type, TableBasedFunction* function) {
+            if (type == std::string("Neighbor")) {
+                return new NeighborInterpolationAlgorithm(function);
+            }
+
+            if (type == std::string("Linear")) {
+                return new LinearInterpolationAlgorithm(function);
+            }
+
+            if (type == std::string("Quadric")) {
+                return new QuadricInterpolationAlgorithm(function);
+            }
+
+            throw std::exception();
+        }
+};
+
+TEST(AInterpolationAlgorithmFactory, ThrowsErrorAtRequestingUnknownAlgorithm) {
+    TableBasedFunction function;
+
+    ASSERT_THROW(InterpolationAlgorithmFactory::create(std::string("Unknown"), &function), std::exception);
+}
+
+TEST(AInterpolationAlgorithmFactory, ReturnsRequiredAlgorithm) {
+    TableBasedFunction function;
+
+    ASSERT_TRUE(dynamic_cast<NeighborInterpolationAlgorithm*>(
+        InterpolationAlgorithmFactory::create(std::string("Neighbor"), &function)
+    ));
+
+    ASSERT_TRUE(dynamic_cast<LinearInterpolationAlgorithm*>(
+        InterpolationAlgorithmFactory::create(std::string("Linear"), &function)
+    ));
+
+    ASSERT_TRUE(dynamic_cast<QuadricInterpolationAlgorithm*>(
+        InterpolationAlgorithmFactory::create(std::string("Quadric"), &function)
+    ));
 }
 
 int main(int argc, char **argv) {
