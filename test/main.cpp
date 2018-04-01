@@ -301,6 +301,55 @@ TEST_F(GetNearestPoints, ReturnsCorrectPointsAtLowerBoundForParabolicRequest) {
     ASSERT_THAT(spline.interpolate(1.9f), FloatEq(2.f));
 }
 
+class LinearInterpolation {
+    public:
+        LinearInterpolation(TableBasedFunction* function_) // const correctness
+            : function(function_) {
+        }
+        const float interpolate(float arg) const {
+            if (!function) {
+                assert(false);
+                return 0.f;
+            }
+            const std::vector<Point>& points = function->getPoints();
+            const std::vector<Point> res = getNearestPoints(points, arg, 2);
+
+            if (!res.empty()) {
+                assert(res.size() == 2);
+
+                float x = arg;
+
+                float x0 = res[0].x;
+                float x1 = res[1].x;
+
+                float y0 = res[0].y;
+                float y1 = res[1].y;
+
+                float c = (x - x0) / (x1 - x0);
+
+                float y = y0 * (1 - c) + y1 * c;
+
+                return y;
+            }
+
+            assert(false);
+
+            return 0.f;
+        }
+    private:
+        TableBasedFunction* function;
+};
+
+TEST(LinearInterpolationAlgorithm, ReturnsValueOnLineBetweenPoints) {
+    TableBasedFunction function;
+    function.appendPoint(Point(1.f, 1.f));
+    function.appendPoint(Point(3.f, 3.f));
+
+    LinearInterpolation spline(&function);
+
+    ASSERT_THAT(spline.interpolate(2.f), FloatEq(2.f));
+}
+
 int main(int argc, char **argv) {
     ::testing::InitGoogleMock(&argc, argv);
     return RUN_ALL_TESTS();
