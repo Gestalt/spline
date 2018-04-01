@@ -5,24 +5,38 @@
 using namespace std;
 using namespace testing;
 
-const std::vector<float> getNearestPoints(const std::vector<float>& src, float target, int N) {
+struct Point {
+    Point(float x_, float y_)
+        : x(x_), y(y_) {
+        }
+    float x;
+    float y;
+};
+
+bool operator==(const Point& lhs, const Point& rhs) {
+
+    return lhs.x == rhs.x && lhs.y == rhs.y; // float cmp
+}
+
+const std::vector<Point> getNearestPoints(const std::vector<Point>& src, float arg, int N) {
+//check for 0 size
     int size = src.size();
 
     if (N > size || N > 3) {
         throw std::exception();
     }
 
-    if (target < src.front()) {
+    if (arg < src.front().x) {
         throw std::exception();
     }
 
-    if (target > src.back()) {
+    if (arg > src.back().x) {
         throw std::exception();
     }
 
     int index = -1;
     for (int i = 0; i < size; i++) {
-        if (target < src[i]) {
+        if (arg < src[i].x) {
             break;
         } else {
             index = i;
@@ -34,39 +48,39 @@ const std::vector<float> getNearestPoints(const std::vector<float>& src, float t
     int L = index;
     int R = index + 1;
 
-    std::vector<float> res;
+    std::vector<Point> res;
 
-    float half = 0.5f * (src[L] + src[R]);
+    float half = 0.5f * (src[L].x + src[R].x);
 
     if (N == 1) {
-        if (target > half) {
-            res.push_back(src[R]);
+        if (arg > half) {
+            res.push_back(Point(src[R].x, src[R].y));
         } else {
-            res.push_back(src[L]);
+            res.push_back(Point(src[L].x, src[L].y));
         }
     } else if (N == 2) {
-        res.push_back(src[L]);
-        res.push_back(src[R]);
+        res.push_back(Point(src[L].x, src[L].y));
+        res.push_back(Point(src[R].x, src[R].y));
     } else if (N == 3) {
-        if (target >= half) {
+        if (arg >= half) {
             if (R + 1 < size) {
-                res.push_back(src[L]);
-                res.push_back(src[R]);
-                res.push_back(src[R + 1]);
+                res.push_back(Point(src[L].x, src[L].y));
+                res.push_back(Point(src[R].x, src[R].y));
+                res.push_back(Point(src[R+1].x, src[R+1].y));
             } else {
-                res.push_back(src[L - 1]);
-                res.push_back(src[L]);
-                res.push_back(src[R]);
+                res.push_back(Point(src[L-1].x, src[L-1].y));
+                res.push_back(Point(src[L].x, src[L].y));
+                res.push_back(Point(src[R].x, src[R].y));
             }
         } else {
             if (L - 1 > 0) {
-                res.push_back(src[L - 1]);
-                res.push_back(src[L]);
-                res.push_back(src[R]);
+                res.push_back(Point(src[L-1].x, src[L-1].y));
+                res.push_back(Point(src[L].x, src[L].y));
+                res.push_back(Point(src[R].x, src[R].y));
             } else {
-                res.push_back(src[L]);
-                res.push_back(src[R]);
-                res.push_back(src[R + 1]);
+                res.push_back(Point(src[L].x, src[L].y));
+                res.push_back(Point(src[R].x, src[R].y));
+                res.push_back(Point(src[R+1].x, src[R+1].y));
             }
         }
     } else {
@@ -76,27 +90,35 @@ const std::vector<float> getNearestPoints(const std::vector<float>& src, float t
     return res;
 }
 
+bool sortPointsPredicate(const Point& lhs, const Point& rhs) {
+    return lhs.x < rhs.x;
+}
+
+bool equalPointsPredicate(const Point& lhs, const Point& rhs) {
+    return lhs.x == rhs.x;
+}
+
 class TableBasedFunction {
     public:
         explicit TableBasedFunction(int numOfPoints = 0)
-            : points(std::vector<float>()) {
+            : points(std::vector<Point>()) {
             if (numOfPoints != 0) {
                 points.reserve(numOfPoints);
             }
         }
-        const std::vector<float>& getPoints() {
+        const std::vector<Point>& getPoints() const {
             return points;
         }
-        void appendPoint(float point) {
+        void appendPoint(const Point& point) {
             points.push_back(point);
         }
         void init() {
-            std::sort(points.begin(), points.end());
-            points.erase(std::unique(points.begin(), points.end()),
+            std::sort(points.begin(), points.end(), sortPointsPredicate);
+            points.erase(std::unique(points.begin(), points.end(), equalPointsPredicate),
                     points.end());
         }
     private:
-        std::vector<float> points;
+        std::vector<Point> points;
 };
 
 class ATableBasedFunction: public Test {
@@ -105,22 +127,24 @@ public:
     }
 };
 
-MATCHER(isSorted, "") {
-  std::vector<float>::const_iterator first = arg.begin();
-  std::vector<float>::const_iterator last = arg.end();
+MATCHER(isSortedByArguments, "") {
+  std::vector<Point>::const_iterator first = arg.begin();
+  std::vector<Point>::const_iterator last = arg.end();
 
     if (first == last) {
         return true;
     }
-    std::vector<float>::const_iterator next = first;
-    while (++next!=last) {
-        if (*next<*first) {
+    std::vector<Point>::const_iterator next = first;
+    while ( ++next != last ) {
+        if ( (*next).x < (*first).x ) {
             return false;
         }
         ++first;
   }
   return true;
 }
+
+
 
 TEST_F(ATableBasedFunction, IsEmptyWhenCreated) {
     TableBasedFunction function;
@@ -131,42 +155,47 @@ TEST_F(ATableBasedFunction, IsEmptyWhenCreated) {
 TEST_F(ATableBasedFunction, SortsArgumentsAtInitialization) {
     TableBasedFunction function;
 
-    function.appendPoint(0.f);
-    function.appendPoint(2.f);
-    function.appendPoint(1.f);
+    function.appendPoint(Point(0.f, 0.f));
+    function.appendPoint(Point(2.f, 0.f));
+    function.appendPoint(Point(1.f, 0.f));
 
     function.init();
 
-    ASSERT_THAT(function.getPoints(), isSorted());
+    ASSERT_THAT(function.getPoints(), isSortedByArguments());
 }
+
 
 TEST_F(ATableBasedFunction, DeletesDuplicatedArgumentsAtInitialization) {
     TableBasedFunction function;
 
-    function.appendPoint(0.f);
-    function.appendPoint(1.f);
-    function.appendPoint(1.f);
+    function.appendPoint(Point(0.f, 0.f));
+    function.appendPoint(Point(1.f, 0.f));
+    function.appendPoint(Point(1.f, 0.f));
 
     function.init();
 
-    ASSERT_THAT(function.getPoints(), ElementsAre(0.f, 1.f));
+    ASSERT_THAT(function.getPoints(), ElementsAre(
+        Point(0.f, 0.f),
+        Point(1.f, 0.f)
+    ));
 }
+
 
 class GetNearestPoints: public Test {
 public:
-    std::vector<float> vec;
+    std::vector<Point> vec;
 
     void SetUp() {
-        vec.push_back(0.f);
-        vec.push_back(1.f);
-        vec.push_back(2.f);
-        vec.push_back(3.f);
-        vec.push_back(4.f);
-        vec.push_back(5.f);
-        vec.push_back(6.f);
-        vec.push_back(7.f);
-        vec.push_back(8.f);
-        vec.push_back(9.f);
+        vec.push_back(Point(0.f, 0.f));
+        vec.push_back(Point(1.f, 0.f));
+        vec.push_back(Point(2.f, 0.f));
+        vec.push_back(Point(3.f, 0.f));
+        vec.push_back(Point(4.f, 0.f));
+        vec.push_back(Point(5.f, 0.f));
+        vec.push_back(Point(6.f, 0.f));
+        vec.push_back(Point(7.f, 0.f));
+        vec.push_back(Point(8.f, 0.f));
+        vec.push_back(Point(9.f, 0.f));
     }
 };
 
@@ -188,29 +217,88 @@ TEST_F(GetNearestPoints, ThrowsErrorForHigherOrderRequest) {
 
 TEST_F(GetNearestPoints, ReturnsOneNearestPointForNeighborRequest) {
 
-    ASSERT_THAT(getNearestPoints(vec, 5.1f, 1), ElementsAre(5.f));
-    ASSERT_THAT(getNearestPoints(vec, 5.9f, 1), ElementsAre(6.f));
+    ASSERT_THAT(getNearestPoints(vec, 5.1f, 1), ElementsAre(
+        Point(5.f, 0.f)
+    ));
+
+    ASSERT_THAT(getNearestPoints(vec, 5.9f, 1), ElementsAre(
+        Point(6.f, 0.f)
+    ));
 }
 
 TEST_F(GetNearestPoints, ReturnsTwoBetweenPointsForLinearRequest) {
 
-    ASSERT_THAT(getNearestPoints(vec, 5.1f, 2), ElementsAre(5.f, 6.f));
+    ASSERT_THAT(getNearestPoints(vec, 5.1f, 2), ElementsAre(
+        Point(5.f, 0.f),
+        Point(6.f, 0.f)
+    ));
 }
 
 TEST_F(GetNearestPoints, ReturnsThreeNearestPointsForParabolicRequest) {
 
-    ASSERT_THAT(getNearestPoints(vec, 5.1f, 3), ElementsAre(4.f, 5.f, 6.f));
-    ASSERT_THAT(getNearestPoints(vec, 5.9f, 3), ElementsAre(5.f, 6.f, 7.f));
+    ASSERT_THAT(getNearestPoints(vec, 5.1f, 3), ElementsAre(
+        Point(4.f, 0.f),
+        Point(5.f, 0.f),
+        Point(6.f, 0.f)
+    ));
+
+    ASSERT_THAT(getNearestPoints(vec, 5.9f, 3), ElementsAre(
+        Point(5.f, 0.f),
+        Point(6.f, 0.f),
+        Point(7.f, 0.f)
+    ));
 }
 
 TEST_F(GetNearestPoints, ReturnsCorrectPointsAtUpperBoundForParabolicRequest) {
 
-    ASSERT_THAT(getNearestPoints(vec, 8.9f, 3), ElementsAre(7.f, 8.f, 9.f));
+    ASSERT_THAT(getNearestPoints(vec, 8.9f, 3), ElementsAre(
+        Point(7.f, 0.f),
+        Point(8.f, 0.f),
+        Point(9.f, 0.f)
+    ));
 }
 
 TEST_F(GetNearestPoints, ReturnsCorrectPointsAtLowerBoundForParabolicRequest) {
 
-    ASSERT_THAT(getNearestPoints(vec, 0.1f, 3), ElementsAre(0.f, 1.f, 2.f));
+    ASSERT_THAT(getNearestPoints(vec, 0.1f, 3), ElementsAre(
+        Point(0.f, 0.f),
+        Point(1.f, 0.f),
+        Point(2.f, 0.f)
+    ));
+}
+
+class NeighborInterpolation {    public:
+        NeighborInterpolation(TableBasedFunction* function_) // const correctness
+            : function(function_) {
+        }
+        const float interpolate(float arg) const {
+            if (!function) {
+                assert(false);
+                return 0.f;
+            }
+            const std::vector<Point>& points = function->getPoints();
+            const std::vector<Point> res = getNearestPoints(points, arg, 1);
+
+            if (!res.empty()) {
+                return res.front().y;
+            }
+
+            assert(false);
+
+            return 0.f;
+        }
+    private:
+        TableBasedFunction* function;
+};TEST(NeighborInterpolationAlgorithm, ReturnsNearestValueNextToArgument) {
+    TableBasedFunction function;
+
+    function.appendPoint(Point(1.f, 1.f));
+    function.appendPoint(Point(2.f, 2.f));
+
+    NeighborInterpolation spline(&function);
+
+    ASSERT_THAT(spline.interpolate(1.1f), FloatEq(1.f));
+    ASSERT_THAT(spline.interpolate(1.9f), FloatEq(2.f));
 }
 
 int main(int argc, char **argv) {
