@@ -1,6 +1,6 @@
 cls
-if exist build rmdir /S /Q build
-mkdir build
+::if exist build rmdir /S /Q build
+::mkdir build
 cd build
 
 cmake -G "Visual Studio 8 2005" ../ -DCMAKE_CXX_FLAGS="/wd4996 /EHsc" -DMSVC_RUNTIME=static || exit /b

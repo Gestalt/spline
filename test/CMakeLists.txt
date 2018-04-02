@@ -8,10 +8,20 @@ include(gmock)
 
 enable_testing()
 
-add_executable(${PROJECT_NAME} main.cpp)
+add_executable(${PROJECT_NAME}
+	main.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/../Point.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/../InterpolationFactory.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/../NeighborInterpolation.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/../LinearInterpolation.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/../QuadricInterpolation.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/../TableBasedFunction.cpp
+)
 
 target_include_directories(${PROJECT_NAME}
-	PRIVATE ${GTEST_INCLUDE_DIRS}
+	PRIVATE
+		${CMAKE_CURRENT_SOURCE_DIR}/..
+		${GTEST_INCLUDE_DIRS}
 		${GMOCK_INCLUDE_DIRS}
 )
 

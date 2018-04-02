@@ -2,125 +2,15 @@
 #include <iostream>
 #include <exception>
 
+#include "TableBasedFunction.h"
+#include "Interpolation.h"
+#include "NeighborInterpolation.h"
+#include "LinearInterpolation.h"
+#include "QuadricInterpolation.h"
+#include "InterpolationFactory.h"
+
 using namespace std;
 using namespace testing;
-
-struct Point {
-    Point(float x_, float y_)
-        : x(x_), y(y_) {
-        }
-    float x;
-    float y;
-};
-
-bool operator==(const Point& lhs, const Point& rhs) {
-
-    return lhs.x == rhs.x && lhs.y == rhs.y; // float cmp
-}
-
-bool sortPointsPredicate(const Point& lhs, const Point& rhs) {
-    return lhs.x < rhs.x;
-}
-
-bool equalPointsPredicate(const Point& lhs, const Point& rhs) {
-    return lhs.x == rhs.x;
-}
-
-class TableBasedFunction {
-    public:
-        explicit TableBasedFunction(int numOfPoints = 0)
-            : points(std::vector<Point>()) {
-            if (numOfPoints != 0) {
-                points.reserve(numOfPoints);
-            }
-        }
-        const std::vector<Point>& getPoints() const {
-            return points;
-        }
-        void appendPoint(const Point& point) {
-            points.push_back(point);
-        }
-        void init() {
-            std::sort(points.begin(), points.end(), sortPointsPredicate);
-            points.erase(std::unique(points.begin(), points.end(), equalPointsPredicate),
-                    points.end());
-        }
-        const std::vector<Point> getNearestPoints(float arg, int N) const {
-        //check for 0 size
-            int size = points.size();
-
-            if (N > size || N > 3) {
-                throw std::exception();
-            }
-
-            if (arg < points.front().x) {
-                throw std::exception();
-            }
-
-            if (arg > points.back().x) {
-                throw std::exception();
-            }
-
-            int index = -1;
-            for (int i = 0; i < size; i++) {
-                if (arg < points[i].x) {
-                    break;
-                } else {
-                    index = i;
-                }
-            }
-
-            assert(index != -1);
-
-            int L = index;
-            int R = index + 1;
-
-            std::vector<Point> res;
-
-            float half = 0.5f * (points[L].x + points[R].x);
-
-            if (N == 1) {
-                if (arg > half) {
-                    res.push_back(Point(points[R].x, points[R].y));
-                } else {
-                    res.push_back(Point(points[L].x, points[L].y));
-                }
-            } else if (N == 2) {
-                res.push_back(Point(points[L].x, points[L].y));
-                res.push_back(Point(points[R].x, points[R].y));
-            } else if (N == 3) {
-                if (arg >= half) {
-                    if (R + 1 < size) {
-                        res.push_back(Point(points[L].x, points[L].y));
-                        res.push_back(Point(points[R].x, points[R].y));
-                        res.push_back(Point(points[R+1].x, points[R+1].y));
-                    } else {
-                        res.push_back(Point(points[L-1].x, points[L-1].y));
-                        res.push_back(Point(points[L].x, points[L].y));
-                        res.push_back(Point(points[R].x, points[R].y));
-                    }
-                } else {
-                    if (L - 1 > 0) {
-                        res.push_back(Point(points[L-1].x, points[L-1].y));
-                        res.push_back(Point(points[L].x, points[L].y));
-                        res.push_back(Point(points[R].x, points[R].y));
-                    } else {
-                        res.push_back(Point(points[L].x, points[L].y));
-                        res.push_back(Point(points[R].x, points[R].y));
-                        res.push_back(Point(points[R+1].x, points[R+1].y));
-                    }
-                }
-            } else {
-                throw std::exception();
-            }
-
-            return res;
-        }
-    private:
-        std::vector<Point> points;
-};
-
-
 
 class ATableBasedFunction: public Test {
 public:
@@ -145,8 +35,6 @@ MATCHER(isSortedByArguments, "") {
   return true;
 }
 
-
-
 TEST_F(ATableBasedFunction, IsEmptyWhenCreated) {
     TableBasedFunction function;
 
@@ -165,7 +53,6 @@ TEST_F(ATableBasedFunction, SortsArgumentsAtInitialization) {
     ASSERT_THAT(function.getPoints(), isSortedByArguments());
 }
 
-
 TEST_F(ATableBasedFunction, DeletesDuplicatedArgumentsAtInitialization) {
     TableBasedFunction function;
 
@@ -180,7 +67,6 @@ TEST_F(ATableBasedFunction, DeletesDuplicatedArgumentsAtInitialization) {
         Point(1.f, 0.f)
     ));
 }
-
 
 class GetNearestPoints: public Test {
 public:
@@ -268,30 +154,7 @@ TEST_F(GetNearestPoints, ReturnsCorrectPointsAtLowerBoundForParabolicRequest) {
     ));
 }
 
-class Interpolation {
-    public:
-        virtual ~Interpolation() {}
-        virtual const float interpolate(TableBasedFunction* function, float argument) const = 0;
-};
-
-class NeighborInterpolation : public Interpolation {    public:
-        const float interpolate(TableBasedFunction* function, float argument) const {
-            if (!function) {
-                assert(false);
-                return 0.f;
-            }
-            const std::vector<Point>& points = function->getPoints();
-            const std::vector<Point> res = function->getNearestPoints(argument, 1);
-
-            if (!res.empty()) {
-                return res.front().y;
-            }
-
-            assert(false);
-
-            return 0.f;
-        }
-};TEST(ANeighborInterpolation, ReturnsNearestValueNextToArgument) {
+TEST(ANeighborInterpolation, ReturnsNearestValueNextToArgument) {
     TableBasedFunction function;
 
     function.appendPoint(Point(1.f, 1.f));
@@ -303,39 +166,6 @@ class NeighborInterpolation : public Interpolation {    public:
     ASSERT_THAT(spline.interpolate(&function, 1.9f), FloatEq(2.f));
 }
 
-class LinearInterpolation : public Interpolation {
-    public:
-        const float interpolate(TableBasedFunction* function, float argument) const {
-            if (!function) {
-                assert(false);
-                return 0.f;
-            }
-            const std::vector<Point>& points = function->getPoints();
-            const std::vector<Point> res = function->getNearestPoints(argument, 2);
-
-            if (!res.empty()) {
-                assert(res.size() == 2);
-
-                float x = argument;
-
-                float x0 = res[0].x;
-                float x1 = res[1].x;
-
-                float y0 = res[0].y;
-                float y1 = res[1].y;
-
-                float c = (x - x0) / (x1 - x0);
-
-                float y = y0 * (1 - c) + y1 * c;
-
-                return y;
-            }
-
-            assert(false);
-
-            return 0.f;
-        }
-};
 
 TEST(ALinearInterpolation, ReturnsValueOnLineBetweenPoints) {
     TableBasedFunction function;
@@ -347,44 +177,6 @@ TEST(ALinearInterpolation, ReturnsValueOnLineBetweenPoints) {
     ASSERT_THAT(spline.interpolate(&function, 2.f), FloatEq(2.f));
 }
 
-class QuadricInterpolation : public Interpolation {
-    public:
-        const float interpolate(TableBasedFunction* function, float argument) const {
-            if (!function) {
-                assert(false);
-                return 0.f;
-            }
-            const std::vector<Point>& points = function->getPoints();
-            const std::vector<Point> res = function->getNearestPoints(argument, 3);
-
-            if (!res.empty()) {
-                assert(res.size() == 3);
-
-                float x = argument;
-
-                float x0 = res[0].x;
-                float x1 = res[1].x;
-                float x2 = res[2].x;
-
-                float y0 = res[0].y;
-                float y1 = res[1].y;
-                float y2 = res[2].y;
-
-                float c0 = ((x - x1) * (x - x2)) / ((x0 - x1) * (x0 - x2));
-                float c1 = ((x - x0) * (x - x2)) / ((x1 - x0) * (x1 - x2));
-                float c2 = ((x - x0) * (x - x1)) / ((x2 - x0) * (x2 - x1));
-
-                float y = y0 * c0 + y1 * c1 + y2 * c2;
-
-                return y;
-            }
-
-            assert(false);
-
-            return 0.f;
-        }
-};
-
 TEST(AQuadricInterpolation, ReturnsValueOnParabola) {
     TableBasedFunction function;
     function.appendPoint(Point(1.f, 1.f));
@@ -395,25 +187,6 @@ TEST(AQuadricInterpolation, ReturnsValueOnParabola) {
 
     ASSERT_THAT(spline.interpolate(&function, 3.f), FloatEq(9.f));
 }
-
-class InterpolationFactory {
-    public:
-        static Interpolation* create(const std::string& type) {
-            if (type == std::string("Neighbor")) {
-                return new NeighborInterpolation();
-            }
-
-            if (type == std::string("Linear")) {
-                return new LinearInterpolation();
-            }
-
-            if (type == std::string("Quadric")) {
-                return new QuadricInterpolation();
-            }
-
-            throw std::exception();
-        }
-};
 
 TEST(AInterpolationFactory, ThrowsErrorAtRequestingUnknownAlgorithm) {
 
