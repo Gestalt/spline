@@ -267,22 +267,14 @@ TEST_F(GetNearestPoints, ReturnsCorrectPointsAtLowerBoundForParabolicRequest) {
     ));
 }
 
-class InterpolationAlgorithm {
+class Interpolation {
     public:
-        InterpolationAlgorithm(TableBasedFunction* function_)
-            : function(function_) {
-            }
-        virtual ~InterpolationAlgorithm() {}
-        virtual const float interpolate(float argument) const = 0;
-    protected:
-        TableBasedFunction* function;
+        virtual ~Interpolation() {}
+        virtual const float interpolate(TableBasedFunction* function, float argument) const = 0;
 };
 
-class NeighborInterpolationAlgorithm : public InterpolationAlgorithm {    public:
-        NeighborInterpolationAlgorithm(TableBasedFunction* function)
-            : InterpolationAlgorithm(function) {
-        }
-        const float interpolate(float argument) const {
+class NeighborInterpolation : public Interpolation {    public:
+        const float interpolate(TableBasedFunction* function, float argument) const {
             if (!function) {
                 assert(false);
                 return 0.f;
@@ -298,24 +290,21 @@ class NeighborInterpolationAlgorithm : public InterpolationAlgorithm {    publi
 
             return 0.f;
         }
-};TEST(NeighborInterpolation, ReturnsNearestValueNextToArgument) {
+};TEST(ANeighborInterpolation, ReturnsNearestValueNextToArgument) {
     TableBasedFunction function;
 
     function.appendPoint(Point(1.f, 1.f));
     function.appendPoint(Point(2.f, 2.f));
 
-    NeighborInterpolationAlgorithm spline(&function);
+    NeighborInterpolation spline;
 
-    ASSERT_THAT(spline.interpolate(1.1f), FloatEq(1.f));
-    ASSERT_THAT(spline.interpolate(1.9f), FloatEq(2.f));
+    ASSERT_THAT(spline.interpolate(&function, 1.1f), FloatEq(1.f));
+    ASSERT_THAT(spline.interpolate(&function, 1.9f), FloatEq(2.f));
 }
 
-class LinearInterpolationAlgorithm : public InterpolationAlgorithm  {
+class LinearInterpolation : public Interpolation {
     public:
-        LinearInterpolationAlgorithm(TableBasedFunction* function)
-            : InterpolationAlgorithm(function) {
-        }
-        const float interpolate(float argument) const {
+        const float interpolate(TableBasedFunction* function, float argument) const {
             if (!function) {
                 assert(false);
                 return 0.f;
@@ -347,22 +336,19 @@ class LinearInterpolationAlgorithm : public InterpolationAlgorithm  {
         }
 };
 
-TEST(LinearInterpolation, ReturnsValueOnLineBetweenPoints) {
+TEST(ALinearInterpolation, ReturnsValueOnLineBetweenPoints) {
     TableBasedFunction function;
     function.appendPoint(Point(1.f, 1.f));
     function.appendPoint(Point(3.f, 3.f));
 
-    LinearInterpolationAlgorithm spline(&function);
+    LinearInterpolation spline;
 
-    ASSERT_THAT(spline.interpolate(2.f), FloatEq(2.f));
+    ASSERT_THAT(spline.interpolate(&function, 2.f), FloatEq(2.f));
 }
 
-class QuadricInterpolationAlgorithm : public InterpolationAlgorithm  {
+class QuadricInterpolation : public Interpolation {
     public:
-        QuadricInterpolationAlgorithm(TableBasedFunction* function)
-            : InterpolationAlgorithm(function) {
-        }
-        const float interpolate(float argument) const {
+        const float interpolate(TableBasedFunction* function, float argument) const {
             if (!function) {
                 assert(false);
                 return 0.f;
@@ -398,56 +384,60 @@ class QuadricInterpolationAlgorithm : public InterpolationAlgorithm  {
         }
 };
 
-TEST(QuadricInterpolation, ReturnsValueOnParabola) {
+TEST(AQuadricInterpolation, ReturnsValueOnParabola) {
     TableBasedFunction function;
     function.appendPoint(Point(1.f, 1.f));
     function.appendPoint(Point(2.f, 4.f));
     function.appendPoint(Point(4.f, 16.f));
 
-    QuadricInterpolationAlgorithm spline(&function);
+    QuadricInterpolation spline;
 
-    ASSERT_THAT(spline.interpolate(3.f), FloatEq(9.f));
+    ASSERT_THAT(spline.interpolate(&function, 3.f), FloatEq(9.f));
 }
 
-class InterpolationAlgorithmFactory {
+class InterpolationFactory {
     public:
-        static InterpolationAlgorithm* create(const std::string& type, TableBasedFunction* function) {
+        static Interpolation* create(const std::string& type) {
             if (type == std::string("Neighbor")) {
-                return new NeighborInterpolationAlgorithm(function);
+                return new NeighborInterpolation();
             }
 
             if (type == std::string("Linear")) {
-                return new LinearInterpolationAlgorithm(function);
+                return new LinearInterpolation();
             }
 
             if (type == std::string("Quadric")) {
-                return new QuadricInterpolationAlgorithm(function);
+                return new QuadricInterpolation();
             }
 
             throw std::exception();
         }
 };
 
-TEST(AInterpolationAlgorithmFactory, ThrowsErrorAtRequestingUnknownAlgorithm) {
-    TableBasedFunction function;
+TEST(AInterpolationFactory, ThrowsErrorAtRequestingUnknownAlgorithm) {
 
-    ASSERT_THROW(InterpolationAlgorithmFactory::create(std::string("Unknown"), &function), std::exception);
+    ASSERT_THROW(InterpolationFactory::create(std::string("Unknown")), std::exception);
 }
 
-TEST(AInterpolationAlgorithmFactory, ReturnsRequiredAlgorithm) {
-    TableBasedFunction function;
+TEST(AInterpolationFactory, ReturnsRequiredAlgorithm) {
 
-    ASSERT_TRUE(dynamic_cast<NeighborInterpolationAlgorithm*>(
-        InterpolationAlgorithmFactory::create(std::string("Neighbor"), &function)
-    ));
+    Interpolation* neighborInterpolation = InterpolationFactory::create(std::string("Neighbor"));
 
-    ASSERT_TRUE(dynamic_cast<LinearInterpolationAlgorithm*>(
-        InterpolationAlgorithmFactory::create(std::string("Linear"), &function)
-    ));
+    ASSERT_TRUE(dynamic_cast<NeighborInterpolation*>(neighborInterpolation));
 
-    ASSERT_TRUE(dynamic_cast<QuadricInterpolationAlgorithm*>(
-        InterpolationAlgorithmFactory::create(std::string("Quadric"), &function)
-    ));
+    delete neighborInterpolation;
+
+    Interpolation* linearInterpolation = InterpolationFactory::create(std::string("Linear"));
+
+    ASSERT_TRUE(dynamic_cast<LinearInterpolation*>(linearInterpolation));
+
+    delete linearInterpolation;
+
+    Interpolation* quadricInterpolation = InterpolationFactory::create(std::string("Quadric"));
+
+    ASSERT_TRUE(dynamic_cast<QuadricInterpolation*>(quadricInterpolation));
+
+    delete quadricInterpolation;
 }
 
 int main(int argc, char **argv) {
