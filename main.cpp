@@ -1,7 +1,10 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <sstream>
+#include <algorithm>
 
+#include "Parameters.h"
 #include "Spline.h"
 #include "TableBasedFunction.h"
 #include "Interpolation.h"
@@ -10,6 +13,10 @@
 static void loadFunctionFromFile(TableBasedFunction& function, std::string fileName) {
     std::ifstream inn;
     inn.open(fileName.c_str(), std::ifstream::in);
+
+    if (!inn.is_open()) {
+        return;
+    }
 
     int n = 0;
     inn >> n;
@@ -32,6 +39,10 @@ static void loadArgumentsFromFile(std::vector<float>& args, std::string fileName
     std::ifstream inn;
     inn.open(fileName.c_str(), std::ifstream::in);
 
+    if (!inn.is_open()) {
+        return;
+    }
+
     int n = 0;
     inn >> n;
 
@@ -52,18 +63,24 @@ static void loadArgumentsFromFile(std::vector<float>& args, std::string fileName
 }
 
 int main(int argc, char** argv) {
+    Parameters params;
+
     try {
+        if (!params.parse(argc, argv)) {
+            return 1;
+        }
+
         TableBasedFunction function;
         std::vector<float> args;
 
-        loadFunctionFromFile(function, std::string("src.txt"));
-        loadArgumentsFromFile(args, std::string("dest.txt"));
+        loadFunctionFromFile(function, params.getSource());
+        loadArgumentsFromFile(args, params.getDestination());
 
-        Interpolation* interpolation = InterpolationFactory::create(std::string("Linear"));
+        Interpolation* interpolation = InterpolationFactory::create(params.getSpline());
         Spline spline(interpolation);
 
         std::ofstream out;
-        out.open("output.txt", std::ofstream::out);
+        out.open(params.getOutput().c_str(), std::ofstream::out);
 
         for (std::vector<float>::const_iterator it = args.begin(); it != args.end(); ++it) {
             const float arg = *it;
@@ -80,4 +97,4 @@ int main(int argc, char** argv) {
     std::cout << std::endl;
 
 	return 0;
-}
+}

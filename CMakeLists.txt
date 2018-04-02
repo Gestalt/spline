@@ -10,6 +10,7 @@ add_executable(${PROJECT_NAME}
 	NeighborInterpolation.cpp
 	QuadricInterpolation.cpp
 	TableBasedFunction.cpp
+	Parameters.cpp
 )
 
 target_include_directories(${PROJECT_NAME}
