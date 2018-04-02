@@ -1,5 +1,6 @@
 *.cbproj
 *.local
 *.res
+*.dsk
 /Win32
 /build
