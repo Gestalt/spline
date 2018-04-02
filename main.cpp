@@ -1,42 +1,20 @@
 #include <iostream>
 #include <fstream>
+#include <vector>
 
 #include "Spline.h"
 #include "TableBasedFunction.h"
 #include "Interpolation.h"
 #include "InterpolationFactory.h"
 
-int main(int argc, char** argv) {
-    try {
-        TableBasedFunction function;
-
-        function.appendPoint(Point(0.f, 0.f));
-        function.appendPoint(Point(1.f, 1.f));
-        function.appendPoint(Point(2.f, 4.f));
-        function.appendPoint(Point(3.f, 9.f));
-        function.appendPoint(Point(4.f, 16.f));
-        function.appendPoint(Point(5.f, 25.f));
-
-        Interpolation* interpolation = InterpolationFactory::create(std::string("Neighbor"));
-        Spline spline(interpolation);
-
-        std::cout << spline.interpolate(&function, 2.2f) << std::endl;
-    } catch (...) {
-        std::cout << "err" << std::endl;
-    }
-
+static void loadFunctionFromFile(TableBasedFunction& function, std::string fileName) {
     std::ifstream inn;
-    std::ofstream out;
-
-    inn.open("input.txt", std::ifstream::in);
-    out.open("output.txt", std::ofstream::out);
+    inn.open(fileName.c_str(), std::ifstream::in);
 
     int n = 0;
     inn >> n;
 
     std::cout << "n=" << n << std::endl;
-
-    //std::vector
 
     while(!inn.eof()) {
         float x;
@@ -44,11 +22,60 @@ int main(int argc, char** argv) {
         inn >> x >> y;
 
         std::cout << "x=" << x << " y=" << y << std::endl;
-        out << x << " " << y << std::endl;
+
+        function.appendPoint(Point(x, y));
+    }
+    inn.close();
+}
+
+static void loadArgumentsFromFile(std::vector<float>& args, std::string fileName) {
+    std::ifstream inn;
+    inn.open(fileName.c_str(), std::ifstream::in);
+
+    int n = 0;
+    inn >> n;
+
+    std::cout << "n=" << n << std::endl;
+
+    args.reserve(n);
+
+    while(!inn.eof()) {
+        float arg;
+        inn >> arg;
+
+        std::cout << "arg=" << arg << std::endl;
+
+        args.push_back(arg);
     }
 
     inn.close();
-    out.close();
+}
+
+int main(int argc, char** argv) {
+    try {
+        TableBasedFunction function;
+        std::vector<float> args;
+
+        loadFunctionFromFile(function, std::string("src.txt"));
+        loadArgumentsFromFile(args, std::string("dest.txt"));
+
+        Interpolation* interpolation = InterpolationFactory::create(std::string("Linear"));
+        Spline spline(interpolation);
+
+        std::ofstream out;
+        out.open("output.txt", std::ofstream::out);
+
+        for (std::vector<float>::const_iterator it = args.begin(); it != args.end(); ++it) {
+            const float arg = *it;
+            const float res = spline.interpolate(&function, arg);
+//            out.precision(10);
+//            out.setf( std::ios::fixed, std:: ios::floatfield );
+            out << arg << " " << res << std::endl;
+        }
+        out.close();
+    } catch (...) {
+        std::cout << "err" << std::endl;
+    }
 
     std::cout << std::endl;
 
