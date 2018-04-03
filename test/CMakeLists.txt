@@ -16,6 +16,7 @@ add_executable(${PROJECT_NAME}
 		${CMAKE_CURRENT_SOURCE_DIR}/../LinearInterpolation.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/../QuadricInterpolation.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/../TableBasedFunction.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/../LagrangePolynom.cpp
 )
 
 target_include_directories(${PROJECT_NAME}

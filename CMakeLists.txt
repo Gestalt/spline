@@ -10,6 +10,7 @@ add_executable(${PROJECT_NAME}
 	NeighborInterpolation.cpp
 	QuadricInterpolation.cpp
 	TableBasedFunction.cpp
+	LagrangePolynom.cpp
 	Parameters.cpp
 )
 
