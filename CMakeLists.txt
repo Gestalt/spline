@@ -12,6 +12,8 @@ add_executable(${PROJECT_NAME}
 	TableBasedFunction.cpp
 	LagrangePolynom.cpp
 	Parameters.cpp
+	InputFile.cpp
+	OutputFile.cpp
 )
 
 target_include_directories(${PROJECT_NAME}

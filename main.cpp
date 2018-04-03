@@ -4,6 +4,8 @@
 #include <sstream>
 #include <algorithm>
 
+#include "InputFile.h"
+#include "OutputFile.h"
 #include "Parameters.h"
 #include "Spline.h"
 #include "TableBasedFunction.h"
@@ -11,12 +13,8 @@
 #include "InterpolationFactory.h"
 
 static void loadFunctionFromFile(TableBasedFunction& function, std::string fileName) {
-    std::ifstream inn;
-    inn.open(fileName.c_str(), std::ifstream::in);
-
-    if (!inn.is_open()) {
-        return;
-    }
+    InputFile file(fileName);
+    std::istream& inn = file.stream();
 
     int n = 0;
     inn >> n;
@@ -25,23 +23,20 @@ static void loadFunctionFromFile(TableBasedFunction& function, std::string fileN
 
     while(!inn.eof()) {
         float x;
-        float y ;
-        inn >> x >> y;
+        float y;
+
+        inn >> x;
+        inn >> y;
 
         std::cout << "x=" << x << " y=" << y << std::endl;
 
         function.appendPoint(Point(x, y));
     }
-    inn.close();
 }
 
 static void loadArgumentsFromFile(std::vector<float>& args, std::string fileName) {
-    std::ifstream inn;
-    inn.open(fileName.c_str(), std::ifstream::in);
-
-    if (!inn.is_open()) {
-        return;
-    }
+    InputFile file(fileName);
+    std::istream& inn = file.stream();
 
     int n = 0;
     inn >> n;
@@ -58,8 +53,6 @@ static void loadArgumentsFromFile(std::vector<float>& args, std::string fileName
 
         args.push_back(arg);
     }
-
-    inn.close();
 }
 
 int main(int argc, char** argv) {
@@ -79,8 +72,8 @@ int main(int argc, char** argv) {
         Interpolation* interpolation = InterpolationFactory::create(params.getSpline());
         Spline spline(interpolation);
 
-        std::ofstream out;
-        out.open(params.getOutput().c_str(), std::ofstream::out);
+        OutputFile file(params.getOutput());
+        std::ostream& out = file.stream();
 
         for (std::vector<float>::const_iterator it = args.begin(); it != args.end(); ++it) {
             const float arg = *it;
@@ -89,7 +82,6 @@ int main(int argc, char** argv) {
 //            out.setf( std::ios::fixed, std:: ios::floatfield );
             out << arg << " " << res << std::endl;
         }
-        out.close();
     } catch (...) {
         std::cout << "err" << std::endl;
     }
