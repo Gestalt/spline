@@ -1,9 +1,13 @@
+#include <sstream>
 #include "OutputFile.h"
 
 OutputFile::OutputFile(const std::string& name) {
     file.open(name.c_str(), std::ofstream::out);
     if (!file.is_open()) {
-        throw std::exception();
+        std::stringstream err;
+        err << "Failed to open output file: "
+            << name.c_str();
+        throw std::runtime_error(err.str());
     }
 }
 

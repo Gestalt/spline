@@ -15,6 +15,7 @@ add_executable(${PROJECT_NAME}
 	InputFile.cpp
 	OutputFile.cpp
 	Application.cpp
+	InterpolationException.cpp
 )
 
 target_include_directories(${PROJECT_NAME}

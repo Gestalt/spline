@@ -4,6 +4,7 @@
 #include "NeighborInterpolation.h"
 #include "LinearInterpolation.h"
 #include "QuadricInterpolation.h"
+#include "InterpolationException.h"
 
 Interpolation* InterpolationFactory::create(const std::string& type) {
     if (type == std::string("Neighbor")) {
@@ -18,5 +19,7 @@ Interpolation* InterpolationFactory::create(const std::string& type) {
         return new QuadricInterpolation();
     }
 
-    throw std::exception();
+    throw InterpolationException(
+        "Attempt to create an unknown interpolation algorithm"
+    );
 }

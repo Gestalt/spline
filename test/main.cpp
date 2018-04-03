@@ -1,6 +1,5 @@
 #include <gmock/gmock.h>
 #include <iostream>
-#include <exception>
 
 #include "TableBasedFunction.h"
 #include "Interpolation.h"
@@ -8,6 +7,7 @@
 #include "LinearInterpolation.h"
 #include "QuadricInterpolation.h"
 #include "InterpolationFactory.h"
+#include "InterpolationException.h"
 
 using namespace std;
 using namespace testing;
@@ -30,7 +30,7 @@ TEST_F(ATableBasedFunction, ThrowsErrorOnAppendingDecreasingArgument) {
     function.appendPoint(Point(0.f, 0.f));
     function.appendPoint(Point(2.f, 0.f));
 
-    ASSERT_THROW(function.appendPoint(Point(1.f, 0.f)), std::exception);
+    ASSERT_THROW(function.appendPoint(Point(1.f, 0.f)), InterpolationException);
 }
 
 TEST_F(ATableBasedFunction, ThrowsErrorOnAppendingDuplicatedArgument) {
@@ -38,7 +38,7 @@ TEST_F(ATableBasedFunction, ThrowsErrorOnAppendingDuplicatedArgument) {
 
     function.appendPoint(Point(0.f, 0.f));
 
-    ASSERT_THROW(function.appendPoint(Point(0.f, 0.f)), std::exception);
+    ASSERT_THROW(function.appendPoint(Point(0.f, 0.f)), InterpolationException);
 }
 
 class GetNearestPoints: public Test {
@@ -61,13 +61,13 @@ public:
 
 TEST_F(GetNearestPoints, ThrowsErrorForOutOfRangeRequest) {
 
-    ASSERT_THROW(function.getNearestPoints(-1.f, 1), std::exception);
-    ASSERT_THROW(function.getNearestPoints(10.f, 1), std::exception);
+    ASSERT_THROW(function.getNearestPoints(-1.f, 1), InterpolationException);
+    ASSERT_THROW(function.getNearestPoints(10.f, 1), InterpolationException);
 }
 
 TEST_F(GetNearestPoints, ThrowsErrorIfTooMuchPointsRequested) {
 
-    ASSERT_THROW(function.getNearestPoints(0.f, 11), std::exception);
+    ASSERT_THROW(function.getNearestPoints(0.f, 11), InterpolationException);
 }
 
 TEST_F(GetNearestPoints, ReturnsOneNearestPointForNeighborRequest) {
@@ -158,7 +158,7 @@ TEST(AQuadricInterpolation, ReturnsValueOnParabola) {
 
 TEST(AInterpolationFactory, ThrowsErrorAtRequestingUnknownAlgorithm) {
 
-    ASSERT_THROW(InterpolationFactory::create(std::string("Unknown")), std::exception);
+    ASSERT_THROW(InterpolationFactory::create(std::string("Unknown")), InterpolationException);
 }
 
 TEST(AInterpolationFactory, ReturnsRequiredAlgorithm) {

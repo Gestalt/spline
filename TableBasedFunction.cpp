@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <assert.h>
 #include "TableBasedFunction.h"
+#include "InterpolationException.h"
 
 static bool sortPointsPredicate(const Point& lhs, const Point& rhs) {
     return lhs.x < rhs.x;
@@ -19,7 +20,9 @@ const std::vector<Point>& TableBasedFunction::getPoints() const {
 
 void TableBasedFunction::appendPoint(const Point& point) {
     if (!points.empty() && point.x <= points.back().x) {
-        throw std::exception();
+        throw InterpolationException(
+            "Attempt to add an invalid argument. Unique arguments must be sorted in increasing order"
+        );
     }
     points.push_back(point);
 }
@@ -29,15 +32,15 @@ const std::vector<Point> TableBasedFunction::getNearestPoints(float arg, int N) 
     int size = points.size();
 
     if (N > size) {
-        throw std::exception();
+        throw InterpolationException(
+            "Not enough points were specified to find required nearest arguments count"
+        );
     }
 
-    if (arg < points.front().x) {
-        throw std::exception();
-    }
-
-    if (arg > points.back().x) {
-        throw std::exception();
+    if (arg < points.front().x || arg > points.back().x) {
+        throw InterpolationException(
+            "Attempt to interpolate an argument outside of the specified range"
+        );
     }
 
     int index = -1;

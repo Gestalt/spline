@@ -5,14 +5,13 @@
 
 static const std::string kDefaultOutput = std::string("output.txt");
 
-Parameters::Parameters(Helper helper_)
+Parameters::Parameters()
     : params(std::vector<std::string>())
     , source(std::string())
     , destination(std::string())
     , output(std::string())
     , spline(std::string())
-    , verbose(false)
-    , helper(helper_) {
+    , verbose(false) {
 }
 
 bool Parameters::getVerbose() const {
@@ -35,7 +34,7 @@ const std::string& Parameters::getSpline() const {
     return spline;
 }
 
-bool Parameters::parse(int argc, char** argv) {
+const std::string Parameters::parse(int argc, char** argv) {
 
     for (int i = 0; i < argc; i++) {
         std::stringstream ss;
@@ -47,7 +46,7 @@ bool Parameters::parse(int argc, char** argv) {
 
     std::string help = readFlag("--help", "-h");
     if (!help.empty()) {
-        printHelp();
+        return std::string("Spline application v.1.0");
     }
 
     output = readPair("--output", "-o");
@@ -62,20 +61,20 @@ bool Parameters::parse(int argc, char** argv) {
 
     source = readPair("--source", "-s");
     if (source.empty()) {
-        throw std::exception();
+        return std::string("Missing required argument: --source|-s");
     }
 
     destination = readPair("--destination", "-d");
     if (destination.empty()) {
-        throw std::exception();
+        return std::string("Missing required argument: --destination|-d");
     }
 
     spline = readPair("--spline");
     if (spline.empty()) {
-        throw std::exception();
+        return std::string("Missing required argument: --spline");
     }
 
-    return true;
+    return std::string();
 }
 
 const std::string Parameters::readFlag(const std::string& longOption, const std::string& shortOption) const {
@@ -119,10 +118,4 @@ const std::string Parameters::readPair(const std::string& longOption, const std:
     res = *it;
 
     return res;
-}
-
-void Parameters::printHelp() const {
-    if (helper) {
-        helper();
-    }
 }

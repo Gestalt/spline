@@ -4,11 +4,9 @@
 #include <vector>
 #include <string>
 
-typedef void (*Helper)();
-
 class Parameters {
     public:
-        Parameters(Helper);
+        Parameters();
 
         bool getVerbose() const;
         const std::string& getSource() const;
@@ -16,13 +14,10 @@ class Parameters {
         const std::string& getOutput() const;
         const std::string& getSpline() const;
 
-        bool parse(int argc, char** argv);
+        const std::string parse(int argc, char** argv);
 
         const std::string readFlag(const std::string& longOption, const std::string& shortOption = "") const;
         const std::string readPair(const std::string& longOption, const std::string& shortOption = "") const;
-
-        void printHelp() const;
-
     private:
         std::vector<std::string> params;
         std::string source;
@@ -30,6 +25,5 @@ class Parameters {
         std::string output;
         std::string spline;
         bool verbose;
-        Helper helper;
 };
 #endif
