@@ -7,7 +7,7 @@ class OutputFile {
     public:
         OutputFile(const std::string& name);
         ~OutputFile();
-        std::ostream& stream();
+        std::ofstream& stream();
     private:
         OutputFile(const OutputFile&);
         OutputFile& operator=(const OutputFile&);

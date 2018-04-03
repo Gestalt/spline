@@ -13,6 +13,6 @@ OutputFile::~OutputFile() {
     }
 }
 
-std::ostream& OutputFile::stream() {
+std::ofstream& OutputFile::stream() {
     return file;
 }

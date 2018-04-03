@@ -5,13 +5,14 @@
 
 static const std::string kDefaultOutput = std::string("output.txt");
 
-Parameters::Parameters()
+Parameters::Parameters(Helper helper_)
     : params(std::vector<std::string>())
     , source(std::string())
     , destination(std::string())
     , output(std::string())
     , spline(std::string())
-    , verbose(false) {
+    , verbose(false)
+    , helper(helper_) {
 }
 
 bool Parameters::getVerbose() const {
@@ -121,12 +122,7 @@ const std::string Parameters::readPair(const std::string& longOption, const std:
 }
 
 void Parameters::printHelp() const {
-    std::cout <<
-        "Usage: \n" <<
-        "--source|-s    set function file\n" <<
-        "--destination|-d    set arguments file\n" <<
-        "--output|-o    set output file\n" <<
-        "--verbose|-v    be verbose\n" <<
-        "--help|-h    print help\n" <<
-    std::endl;
+    if (helper) {
+        helper();
+    }
 }

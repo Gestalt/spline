@@ -14,6 +14,7 @@ add_executable(${PROJECT_NAME}
 	Parameters.cpp
 	InputFile.cpp
 	OutputFile.cpp
+	Application.cpp
 )
 
 target_include_directories(${PROJECT_NAME}

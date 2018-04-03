@@ -4,9 +4,11 @@
 #include <vector>
 #include <string>
 
+typedef void (*Helper)();
+
 class Parameters {
     public:
-        Parameters();
+        Parameters(Helper);
 
         bool getVerbose() const;
         const std::string& getSource() const;
@@ -28,5 +30,6 @@ class Parameters {
         std::string output;
         std::string spline;
         bool verbose;
+        Helper helper;
 };
 #endif
