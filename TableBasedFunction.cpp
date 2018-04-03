@@ -2,12 +2,8 @@
 #include <assert.h>
 #include "TableBasedFunction.h"
 
-bool sortPointsPredicate(const Point& lhs, const Point& rhs) {
+static bool sortPointsPredicate(const Point& lhs, const Point& rhs) {
     return lhs.x < rhs.x;
-}
-
-bool equalPointsPredicate(const Point& lhs, const Point& rhs) {
-    return lhs.x == rhs.x;
 }
 
 TableBasedFunction::TableBasedFunction(int numOfPoints)
@@ -22,20 +18,17 @@ const std::vector<Point>& TableBasedFunction::getPoints() const {
 }
 
 void TableBasedFunction::appendPoint(const Point& point) {
+    if (!points.empty() && point.x <= points.back().x) {
+        throw std::exception();
+    }
     points.push_back(point);
-}
-
-void TableBasedFunction::init() {
-    std::sort(points.begin(), points.end(), sortPointsPredicate);
-    points.erase(std::unique(points.begin(), points.end(), equalPointsPredicate),
-            points.end());
 }
 
 const std::vector<Point> TableBasedFunction::getNearestPoints(float arg, int N) const {
 //check for 0 size
     int size = points.size();
 
-    if (N > size || N > 3) {
+    if (N > size) {
         throw std::exception();
     }
 
@@ -58,47 +51,44 @@ const std::vector<Point> TableBasedFunction::getNearestPoints(float arg, int N) 
 
     assert(index != -1);
 
+    std::vector<Point> res;
+
     int L = index;
     int R = index + 1;
 
-    std::vector<Point> res;
-
     float half = 0.5f * (points[L].x + points[R].x);
 
-    if (N == 1) {
-        if (arg > half) {
-            res.push_back(Point(points[R].x, points[R].y));
-        } else {
-            res.push_back(Point(points[L].x, points[L].y));
-        }
-    } else if (N == 2) {
-        res.push_back(Point(points[L].x, points[L].y));
-        res.push_back(Point(points[R].x, points[R].y));
-    } else if (N == 3) {
-        if (arg >= half) {
-            if (R + 1 < size) {
-                res.push_back(Point(points[L].x, points[L].y));
-                res.push_back(Point(points[R].x, points[R].y));
-                res.push_back(Point(points[R+1].x, points[R+1].y));
-            } else {
-                res.push_back(Point(points[L-1].x, points[L-1].y));
-                res.push_back(Point(points[L].x, points[L].y));
-                res.push_back(Point(points[R].x, points[R].y));
-            }
-        } else {
-            if (L - 1 > 0) {
-                res.push_back(Point(points[L-1].x, points[L-1].y));
-                res.push_back(Point(points[L].x, points[L].y));
-                res.push_back(Point(points[R].x, points[R].y));
-            } else {
-                res.push_back(Point(points[L].x, points[L].y));
-                res.push_back(Point(points[R].x, points[R].y));
-                res.push_back(Point(points[R+1].x, points[R+1].y));
-            }
-        }
-    } else {
-        throw std::exception();
+    if (arg >= half) {
+        std::swap(L, R);
     }
+
+    while (true) {
+        if (L >= 0 && L < size) {
+            res.push_back(points[L]);
+        }
+
+        if (res.size() >= N) {
+            break;
+        }
+
+        if (R >= 0 && R < size) {
+            res.push_back(points[R]);
+        }
+
+        if (res.size() >= N) {
+            break;
+        }
+
+        if (L > R) {
+            L += 1;
+            R -= 1;
+        } else {
+            L -= 1;
+            R += 1;
+        }
+    }
+
+    std::sort(res.begin(), res.end(), sortPointsPredicate);
 
     return res;
 }

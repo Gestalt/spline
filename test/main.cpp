@@ -18,54 +18,27 @@ public:
     }
 };
 
-MATCHER(isSortedByArguments, "") {
-  std::vector<Point>::const_iterator first = arg.begin();
-  std::vector<Point>::const_iterator last = arg.end();
-
-    if (first == last) {
-        return true;
-    }
-    std::vector<Point>::const_iterator next = first;
-    while ( ++next != last ) {
-        if ( (*next).x < (*first).x ) {
-            return false;
-        }
-        ++first;
-  }
-  return true;
-}
-
 TEST_F(ATableBasedFunction, IsEmptyWhenCreated) {
     TableBasedFunction function;
 
     ASSERT_THAT(function.getPoints().size(), Eq(0u));
 }
 
-TEST_F(ATableBasedFunction, SortsArgumentsAtInitialization) {
+TEST_F(ATableBasedFunction, ThrowsErrorOnAppendingDecreasingArgument) {
     TableBasedFunction function;
 
     function.appendPoint(Point(0.f, 0.f));
     function.appendPoint(Point(2.f, 0.f));
-    function.appendPoint(Point(1.f, 0.f));
 
-    function.init();
-
-    ASSERT_THAT(function.getPoints(), isSortedByArguments());
+    ASSERT_THROW(function.appendPoint(Point(1.f, 0.f)), std::exception);
 }
 
-TEST_F(ATableBasedFunction, DeletesDuplicatedArgumentsAtInitialization) {
+TEST_F(ATableBasedFunction, ThrowsErrorOnAppendingDuplicatedArgument) {
     TableBasedFunction function;
 
     function.appendPoint(Point(0.f, 0.f));
-    function.appendPoint(Point(1.f, 0.f));
-    function.appendPoint(Point(1.f, 0.f));
 
-    function.init();
-
-    ASSERT_THAT(function.getPoints(), ElementsAre(
-        Point(0.f, 0.f),
-        Point(1.f, 0.f)
-    ));
+    ASSERT_THROW(function.appendPoint(Point(0.f, 0.f)), std::exception);
 }
 
 class GetNearestPoints: public Test {
@@ -95,11 +68,6 @@ TEST_F(GetNearestPoints, ThrowsErrorForOutOfRangeRequest) {
 TEST_F(GetNearestPoints, ThrowsErrorIfTooMuchPointsRequested) {
 
     ASSERT_THROW(function.getNearestPoints(0.f, 11), std::exception);
-}
-
-TEST_F(GetNearestPoints, ThrowsErrorForHigherOrderRequest) {
-
-    ASSERT_THROW(function.getNearestPoints(0.f, 4), std::exception);
 }
 
 TEST_F(GetNearestPoints, ReturnsOneNearestPointForNeighborRequest) {
