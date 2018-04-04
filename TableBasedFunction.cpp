@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <assert.h>
+#include "Point.h"
 #include "TableBasedFunction.h"
 #include "InterpolationException.h"
 
@@ -9,13 +10,9 @@ static bool sortPointsPredicate(const Point& lhs, const Point& rhs) {
 
 TableBasedFunction::TableBasedFunction(int numOfPoints)
     : points(std::vector<Point>()) {
-    if (numOfPoints != 0) {
-        points.reserve(numOfPoints);
+        if (numOfPoints != 0) {
+            points.reserve(numOfPoints);
     }
-}
-
-const std::vector<Point>& TableBasedFunction::getPoints() const {
-    return points;
 }
 
 void TableBasedFunction::appendPoint(const Point& point) {
@@ -27,9 +24,8 @@ void TableBasedFunction::appendPoint(const Point& point) {
     points.push_back(point);
 }
 
-const std::vector<Point> TableBasedFunction::getNearestPoints(float arg, int N) const {
-//check for 0 size
-    int size = points.size();
+const std::vector<Point> TableBasedFunction::getNearestPoints(float arg, unsigned int N) const {
+    size_t size = points.size();
 
     if (N > size) {
         throw InterpolationException(
@@ -44,7 +40,7 @@ const std::vector<Point> TableBasedFunction::getNearestPoints(float arg, int N) 
     }
 
     int index = -1;
-    for (int i = 0; i < size; i++) {
+    for (size_t i = 0; i < size; i++) {
         if (arg < points[i].x) {
             break;
         } else {
@@ -66,7 +62,7 @@ const std::vector<Point> TableBasedFunction::getNearestPoints(float arg, int N) 
     }
 
     while (true) {
-        if (L >= 0 && L < size) {
+        if (L >= 0 && L < (int)size) {
             res.push_back(points[L]);
         }
 
@@ -74,7 +70,7 @@ const std::vector<Point> TableBasedFunction::getNearestPoints(float arg, int N) 
             break;
         }
 
-        if (R >= 0 && R < size) {
+        if (R >= 0 && R < (int)size) {
             res.push_back(points[R]);
         }
 

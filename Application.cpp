@@ -1,4 +1,3 @@
-#include <iostream>
 #include "Application.h"
 #include "InputFile.h"
 #include "OutputFile.h"
@@ -9,6 +8,7 @@
 #include "InterpolationFactory.h"
 #include "Log.h"
 #include "Defs.h"
+#include "Point.h"
 
 static sp::shared_ptr<TableBasedFunction> createFunctionFromFile(std::string fileName) {
     InputFile file(fileName);

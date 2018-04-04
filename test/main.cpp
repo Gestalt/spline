@@ -1,5 +1,4 @@
 #include <gmock/gmock.h>
-#include <iostream>
 
 #include "Defs.h"
 #include "TableBasedFunction.h"
@@ -9,38 +8,10 @@
 #include "QuadricInterpolation.h"
 #include "InterpolationFactory.h"
 #include "InterpolationException.h"
+#include "Point.h"
 
 using namespace std;
 using namespace testing;
-
-class ATableBasedFunction: public Test {
-public:
-    void SetUp() {
-    }
-};
-
-TEST_F(ATableBasedFunction, IsEmptyWhenCreated) {
-    TableBasedFunction function;
-
-    ASSERT_THAT(function.getPoints().size(), Eq(0u));
-}
-
-TEST_F(ATableBasedFunction, ThrowsErrorOnAppendingDecreasingArgument) {
-    TableBasedFunction function;
-
-    function.appendPoint(Point(0.f, 0.f));
-    function.appendPoint(Point(2.f, 0.f));
-
-    ASSERT_THROW(function.appendPoint(Point(1.f, 0.f)), InterpolationException);
-}
-
-TEST_F(ATableBasedFunction, ThrowsErrorOnAppendingDuplicatedArgument) {
-    TableBasedFunction function;
-
-    function.appendPoint(Point(0.f, 0.f));
-
-    ASSERT_THROW(function.appendPoint(Point(0.f, 0.f)), InterpolationException);
-}
 
 class GetNearestPoints: public Test {
 public:
@@ -123,6 +94,23 @@ TEST_F(GetNearestPoints, ReturnsCorrectPointsAtLowerBoundForParabolicRequest) {
     ));
 }
 
+TEST(ATableBasedFunction, ThrowsErrorOnAppendingDecreasingArgument) {
+    TableBasedFunction function;
+
+    function.appendPoint(Point(0.f, 0.f));
+    function.appendPoint(Point(2.f, 0.f));
+
+    ASSERT_THROW(function.appendPoint(Point(1.f, 0.f)), InterpolationException);
+}
+
+TEST(ATableBasedFunction, ThrowsErrorOnAppendingDuplicatedArgument) {
+    TableBasedFunction function;
+
+    function.appendPoint(Point(0.f, 0.f));
+
+    ASSERT_THROW(function.appendPoint(Point(0.f, 0.f)), InterpolationException);
+}
+
 TEST(ANeighborInterpolation, ReturnsNearestValueNextToArgument) {
     sp::shared_ptr<TableBasedFunction> function = sp::make_shared<TableBasedFunction>();
     function->appendPoint(Point(1.f, 1.f));
@@ -133,7 +121,6 @@ TEST(ANeighborInterpolation, ReturnsNearestValueNextToArgument) {
     ASSERT_THAT(spline.interpolate(function, 1.1f), FloatEq(1.f));
     ASSERT_THAT(spline.interpolate(function, 1.9f), FloatEq(2.f));
 }
-
 
 TEST(ALinearInterpolation, ReturnsValueOnLineBetweenPoints) {
     sp::shared_ptr<TableBasedFunction> function = sp::make_shared<TableBasedFunction>();

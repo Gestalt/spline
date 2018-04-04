@@ -49,3 +49,4 @@ typedef LogMessage<Logger::LogLevel::log> log;
 typedef LogMessage<Logger::LogLevel::verbose> verbose;
 
 #endif
+

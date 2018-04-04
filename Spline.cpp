@@ -5,9 +5,6 @@ Spline::Spline(sp::shared_ptr<Interpolation> interpolation_)
     : interpolation(interpolation_) {
 }
 
-Spline::~Spline() {
-}
-
 const float Spline::interpolate(const sp::shared_ptr<TableBasedFunction>& function, float argument) const {
     if (interpolation && function) {
         return interpolation->interpolate(function, argument);

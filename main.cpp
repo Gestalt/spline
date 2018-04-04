@@ -1,4 +1,3 @@
-#include <iostream>
 #include "Application.h"
 #include "Parameters.h"
 #include "InterpolationException.h"
@@ -9,11 +8,12 @@ static void help(const std::string& error) {
     log() <<
         "      \n" <<
         "Usage:\n" <<
-        "      --source|-s        file source with function points\n" <<
-        "      --destination|-d   file source with arguments to be interpolated\n" <<
-        "      --output|-o        output file. Default is <output.txt>\n" <<
-        "      --verbose|-v       be verbose\n" <<
-        "      --help|-h          print this message\n";
+        "      [--source|-s]        file source with function points\n" <<
+        "      [--destination|-d]   file source with arguments to be interpolated\n" <<
+        "      [--output|-o]        output file. Default is <output.txt>\n" <<
+        "      [--spline]           interpolation algorithm: [Neighbor|Linear|Quadric]\n" <<
+        "      [--verbose|-v]       be verbose\n" <<
+        "      [--help|-h]          print this message\n";
 }
 
 int main(int argc, char** argv) {

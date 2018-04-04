@@ -16,3 +16,4 @@ class InputFile {
 };
 
 #endif
+

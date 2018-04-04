@@ -9,3 +9,4 @@ class NeighborInterpolation : public Interpolation {
 };
 
 #endif
+

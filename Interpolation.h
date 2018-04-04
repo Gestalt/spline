@@ -12,3 +12,4 @@ class Interpolation {
 };
 
 #endif
+

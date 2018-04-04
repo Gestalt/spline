@@ -26,4 +26,6 @@ class Parameters {
         std::string spline;
         bool verbose;
 };
+
 #endif
+

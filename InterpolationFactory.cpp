@@ -1,5 +1,3 @@
-#include <exception>
-
 #include "InterpolationFactory.h"
 #include "NeighborInterpolation.h"
 #include "LinearInterpolation.h"
