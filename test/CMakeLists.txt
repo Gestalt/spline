@@ -3,6 +3,8 @@ project(spline_test)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
+option(USE_BOOST "Using <boost> to access c++11 features" OFF)
+
 include(gtest)
 include(gmock)
 
@@ -10,31 +12,31 @@ enable_testing()
 
 add_executable(${PROJECT_NAME}
 	main.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/../Point.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/../InterpolationFactory.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/../NeighborInterpolation.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/../LinearInterpolation.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/../QuadricInterpolation.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/../TableBasedFunction.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/../LagrangePolynom.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/../InterpolationException.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/../src/Point.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/../src/InterpolationFactory.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/../src/NeighborInterpolation.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/../src/LinearInterpolation.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/../src/QuadricInterpolation.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/../src/TableBasedFunction.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/../src/LagrangePolynom.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/../src/InterpolationException.cpp
 )
 
-#if(USE_BOOST)
+if(USE_BOOST)
 	target_compile_definitions(${PROJECT_NAME}
 		PRIVATE USE_BOOST
 	)
 	find_package(Boost REQUIRED)
 
 	target_include_directories(${PROJECT_NAME}
-		PUBLIC	${Boost_INCLUDE_DIRS}
+		PRIVATE	${Boost_INCLUDE_DIRS}
 			${Boost_INCLUDE_DIRS}/boost
 	)
-#endif(USE_BOOST)
+endif(USE_BOOST)
 
 target_include_directories(${PROJECT_NAME}
 	PRIVATE
-		${CMAKE_CURRENT_SOURCE_DIR}/..
+		${CMAKE_CURRENT_SOURCE_DIR}/../src
 		${GTEST_INCLUDE_DIRS}
 		${GMOCK_INCLUDE_DIRS}
 )

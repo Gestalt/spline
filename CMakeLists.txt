@@ -7,20 +7,20 @@ option(USE_BOOST "Using <boost> to access c++11 features" OFF)
 
 add_executable(${PROJECT_NAME}
 	main.cpp
-	Point.cpp
-	Spline.cpp
-	InterpolationFactory.cpp
-	LinearInterpolation.cpp
-	NeighborInterpolation.cpp
-	QuadricInterpolation.cpp
-	TableBasedFunction.cpp
-	LagrangePolynom.cpp
-	Parameters.cpp
-	InputFile.cpp
-	OutputFile.cpp
-	Application.cpp
-	InterpolationException.cpp
-	Log.cpp
+	src/Point.cpp
+	src/Spline.cpp
+	src/InterpolationFactory.cpp
+	src/LinearInterpolation.cpp
+	src/NeighborInterpolation.cpp
+	src/QuadricInterpolation.cpp
+	src/TableBasedFunction.cpp
+	src/LagrangePolynom.cpp
+	src/Parameters.cpp
+	src/InputFile.cpp
+	src/OutputFile.cpp
+	src/Application.cpp
+	src/InterpolationException.cpp
+	src/Log.cpp
 )
 
 if(USE_BOOST)
@@ -30,13 +30,13 @@ if(USE_BOOST)
 	find_package(Boost REQUIRED)
 
 	target_include_directories(${PROJECT_NAME}
-		PUBLIC	${Boost_INCLUDE_DIRS}
+		PRIVATE	${Boost_INCLUDE_DIRS}
 			${Boost_INCLUDE_DIRS}/boost
 	)
 endif(USE_BOOST)
 
 target_include_directories(${PROJECT_NAME}
-	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
+	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
