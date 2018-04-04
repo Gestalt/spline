@@ -1,15 +1,14 @@
 #include "Spline.h"
 #include "Interpolation.h"
 
-Spline::Spline(Interpolation* interpolation_)
+Spline::Spline(sp::shared_ptr<Interpolation> interpolation_)
     : interpolation(interpolation_) {
 }
 
 Spline::~Spline() {
-    delete interpolation;
 }
 
-const float Spline::interpolate(TableBasedFunction* function, float argument) const {
+const float Spline::interpolate(const sp::shared_ptr<TableBasedFunction>& function, float argument) const {
     if (interpolation && function) {
         return interpolation->interpolate(function, argument);
     }

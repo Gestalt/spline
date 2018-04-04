@@ -6,16 +6,16 @@
 #include "QuadricInterpolation.h"
 #include "InterpolationException.h"
 
-static Interpolation* createNeighbor() {
-    return new NeighborInterpolation();
+static sp::shared_ptr<Interpolation> createNeighbor() {
+    return sp::make_shared<NeighborInterpolation>();
 }
 
-static Interpolation* createLinear() {
-    return new LinearInterpolation();
+static sp::shared_ptr<Interpolation> createLinear() {
+    return sp::make_shared<LinearInterpolation>();
 }
 
-static Interpolation* createQuadric() {
-    return new QuadricInterpolation();
+static sp::shared_ptr<Interpolation> createQuadric() {
+    return sp::make_shared<QuadricInterpolation>();
 }
 
 static bool registrar() {
@@ -48,7 +48,7 @@ bool InterpolationFactory::registerInterpolation(const std::string &type, Interp
     return res.second;
 }
 
-Interpolation* InterpolationFactory::create(const std::string& type) {
+sp::shared_ptr<Interpolation> InterpolationFactory::create(const std::string& type) {
     std::map<std::string, InterpolationCreator>::const_iterator it = interpolations.find(type);
 
     if (it != interpolations.end()) {

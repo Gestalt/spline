@@ -7,8 +7,9 @@
 #include "TableBasedFunction.h"
 #include "Interpolation.h"
 #include "InterpolationFactory.h"
+#include "Defs.h"
 
-static void loadFunctionFromFile(TableBasedFunction& function, std::string fileName) {
+static sp::shared_ptr<TableBasedFunction> createFunctionFromFile(std::string fileName) {
     InputFile file(fileName);
     std::istream& stream = file.stream();
 
@@ -16,6 +17,12 @@ static void loadFunctionFromFile(TableBasedFunction& function, std::string fileN
     stream >> n;
 
     std::cout << "n=" << n << std::endl;
+
+    sp::shared_ptr<TableBasedFunction> res = sp::make_shared<TableBasedFunction>(n);
+
+    if (!res) {
+        return sp::shared_ptr<TableBasedFunction>();
+    }
 
     while(!stream.eof()) {
         float x;
@@ -26,8 +33,10 @@ static void loadFunctionFromFile(TableBasedFunction& function, std::string fileN
 
         std::cout << "x=" << x << " y=" << y << std::endl;
 
-        function.appendPoint(Point(x, y));
+        res->appendPoint(Point(x, y));
     }
+
+    return res;
 }
 
 static void loadArgumentsFromFile(std::vector<float>& args, std::string fileName) {
@@ -52,21 +61,20 @@ static void loadArgumentsFromFile(std::vector<float>& args, std::string fileName
 }
 
 void processInterpolation(const Parameters& params) {
-    TableBasedFunction function;
-    std::vector<float> args;
+    sp::shared_ptr<TableBasedFunction> function = createFunctionFromFile(params.getSource());
 
-    loadFunctionFromFile(function, params.getSource());
+    std::vector<float> args;
     loadArgumentsFromFile(args, params.getDestination());
 
-    Interpolation* interpolation = InterpolationFactory::instance()->create(params.getSpline());
-    Spline spline(interpolation);
+    sp::shared_ptr<Interpolation> interpolation = InterpolationFactory::instance()->create(params.getSpline());
+    sp::shared_ptr<Spline> spline = sp::make_shared<Spline>(interpolation);
 
     OutputFile file(params.getOutput());
     std::ofstream& stream = file.stream();
 
     for (std::vector<float>::const_iterator it = args.begin(); it != args.end(); ++it) {
         const float arg = *it;
-        const float res = spline.interpolate(&function, arg);
+        const float res = spline->interpolate(function, arg);
 //            out.precision(10);
 //            out.setf( std::ios::fixed, std:: ios::floatfield );
         stream << arg << " " << res << std::endl;

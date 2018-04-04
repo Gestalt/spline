@@ -20,6 +20,18 @@ add_executable(${PROJECT_NAME}
 		${CMAKE_CURRENT_SOURCE_DIR}/../InterpolationException.cpp
 )
 
+#if(USE_BOOST)
+	target_compile_definitions(${PROJECT_NAME}
+		PRIVATE USE_BOOST
+	)
+	find_package(Boost REQUIRED)
+
+	target_include_directories(${PROJECT_NAME}
+		PUBLIC	${Boost_INCLUDE_DIRS}
+			${Boost_INCLUDE_DIRS}/boost
+	)
+#endif(USE_BOOST)
+
 target_include_directories(${PROJECT_NAME}
 	PRIVATE
 		${CMAKE_CURRENT_SOURCE_DIR}/..

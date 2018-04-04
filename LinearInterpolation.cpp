@@ -6,7 +6,7 @@
 #include "TableBasedFunction.h"
 #include "Point.h"
 
-const float LinearInterpolation::interpolate(TableBasedFunction* function, float argument) const {
+const float LinearInterpolation::interpolate(const sp::shared_ptr<TableBasedFunction>& function, float argument) const {
     if (!function) {
         assert(false);
         return 0.f;

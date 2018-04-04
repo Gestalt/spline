@@ -1,6 +1,7 @@
 #include <gmock/gmock.h>
 #include <iostream>
 
+#include "Defs.h"
 #include "TableBasedFunction.h"
 #include "Interpolation.h"
 #include "NeighborInterpolation.h"
@@ -123,37 +124,36 @@ TEST_F(GetNearestPoints, ReturnsCorrectPointsAtLowerBoundForParabolicRequest) {
 }
 
 TEST(ANeighborInterpolation, ReturnsNearestValueNextToArgument) {
-    TableBasedFunction function;
-
-    function.appendPoint(Point(1.f, 1.f));
-    function.appendPoint(Point(2.f, 2.f));
+    sp::shared_ptr<TableBasedFunction> function = sp::make_shared<TableBasedFunction>();
+    function->appendPoint(Point(1.f, 1.f));
+    function->appendPoint(Point(2.f, 2.f));
 
     NeighborInterpolation spline;
 
-    ASSERT_THAT(spline.interpolate(&function, 1.1f), FloatEq(1.f));
-    ASSERT_THAT(spline.interpolate(&function, 1.9f), FloatEq(2.f));
+    ASSERT_THAT(spline.interpolate(function, 1.1f), FloatEq(1.f));
+    ASSERT_THAT(spline.interpolate(function, 1.9f), FloatEq(2.f));
 }
 
 
 TEST(ALinearInterpolation, ReturnsValueOnLineBetweenPoints) {
-    TableBasedFunction function;
-    function.appendPoint(Point(1.f, 1.f));
-    function.appendPoint(Point(3.f, 3.f));
+    sp::shared_ptr<TableBasedFunction> function = sp::make_shared<TableBasedFunction>();
+    function->appendPoint(Point(1.f, 1.f));
+    function->appendPoint(Point(3.f, 3.f));
 
     LinearInterpolation spline;
 
-    ASSERT_THAT(spline.interpolate(&function, 2.f), FloatEq(2.f));
+    ASSERT_THAT(spline.interpolate(function, 2.f), FloatEq(2.f));
 }
 
 TEST(AQuadricInterpolation, ReturnsValueOnParabola) {
-    TableBasedFunction function;
-    function.appendPoint(Point(1.f, 1.f));
-    function.appendPoint(Point(2.f, 4.f));
-    function.appendPoint(Point(4.f, 16.f));
+    sp::shared_ptr<TableBasedFunction> function = sp::make_shared<TableBasedFunction>();
+    function->appendPoint(Point(1.f, 1.f));
+    function->appendPoint(Point(2.f, 4.f));
+    function->appendPoint(Point(4.f, 16.f));
 
     QuadricInterpolation spline;
 
-    ASSERT_THAT(spline.interpolate(&function, 3.f), FloatEq(9.f));
+    ASSERT_THAT(spline.interpolate(function, 3.f), FloatEq(9.f));
 }
 
 TEST(AInterpolationFactory, ThrowsErrorAtRequestingUnknownAlgorithm) {
@@ -163,23 +163,14 @@ TEST(AInterpolationFactory, ThrowsErrorAtRequestingUnknownAlgorithm) {
 
 TEST(AInterpolationFactory, ReturnsRequiredAlgorithm) {
 
-    Interpolation* neighborInterpolation = InterpolationFactory::instance()->create(std::string("Neighbor"));
+    sp::shared_ptr<Interpolation> neighborInterpolation = InterpolationFactory::instance()->create(std::string("Neighbor"));
+    ASSERT_TRUE(sp::dynamic_pointer_cast<NeighborInterpolation>(neighborInterpolation));
 
-    ASSERT_TRUE(dynamic_cast<NeighborInterpolation*>(neighborInterpolation));
+    sp::shared_ptr<Interpolation> linearInterpolation = InterpolationFactory::instance()->create(std::string("Linear"));
+    ASSERT_TRUE(sp::dynamic_pointer_cast<LinearInterpolation>(linearInterpolation));
 
-    delete neighborInterpolation;
-
-    Interpolation* linearInterpolation = InterpolationFactory::instance()->create(std::string("Linear"));
-
-    ASSERT_TRUE(dynamic_cast<LinearInterpolation*>(linearInterpolation));
-
-    delete linearInterpolation;
-
-    Interpolation* quadricInterpolation = InterpolationFactory::instance()->create(std::string("Quadric"));
-
-    ASSERT_TRUE(dynamic_cast<QuadricInterpolation*>(quadricInterpolation));
-
-    delete quadricInterpolation;
+    sp::shared_ptr<Interpolation> quadricInterpolation = InterpolationFactory::instance()->create(std::string("Quadric"));
+    ASSERT_TRUE(sp::dynamic_pointer_cast<QuadricInterpolation>(quadricInterpolation));
 }
 
 int main(int argc, char **argv) {

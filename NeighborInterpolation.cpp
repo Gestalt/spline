@@ -5,7 +5,7 @@
 #include "TableBasedFunction.h"
 #include "Point.h"
 
-const float NeighborInterpolation::interpolate(TableBasedFunction* function, float argument) const {
+const float NeighborInterpolation::interpolate(const sp::shared_ptr<TableBasedFunction>& function, float argument) const {
     if (!function) {
         assert(false);
         return 0.f;
