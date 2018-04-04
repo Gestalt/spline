@@ -4,49 +4,49 @@
 #include "QuadricInterpolation.h"
 #include "InterpolationException.h"
 
-static sp::shared_ptr<Interpolation> createNeighbor() {
-    return sp::make_shared<NeighborInterpolation>();
+static sp::shared_ptr<app::Interpolation> createNeighbor() {
+    return sp::make_shared<app::NeighborInterpolation>();
 }
 
-static sp::shared_ptr<Interpolation> createLinear() {
-    return sp::make_shared<LinearInterpolation>();
+static sp::shared_ptr<app::Interpolation> createLinear() {
+    return sp::make_shared<app::LinearInterpolation>();
 }
 
-static sp::shared_ptr<Interpolation> createQuadric() {
-    return sp::make_shared<QuadricInterpolation>();
+static sp::shared_ptr<app::Interpolation> createQuadric() {
+    return sp::make_shared<app::QuadricInterpolation>();
 }
 
 static bool registrar() {
-    InterpolationFactory::instance()->registerInterpolation("Neighbor", createNeighbor);
-    InterpolationFactory::instance()->registerInterpolation("Linear", createLinear);
-    InterpolationFactory::instance()->registerInterpolation("Quadric", createQuadric);
+    app::InterpolationFactory::instance()->registerInterpolation("Neighbor", createNeighbor);
+    app::InterpolationFactory::instance()->registerInterpolation("Linear", createLinear);
+    app::InterpolationFactory::instance()->registerInterpolation("Quadric", createQuadric);
 
     return true;
 }
 
 static bool reg = registrar();
 
-InterpolationFactory::InterpolationFactory()
+app::InterpolationFactory::InterpolationFactory()
     : interpolations(std::map<std::string, InterpolationCreator>()) {
 }
 
-InterpolationFactory::~InterpolationFactory() {
+app::InterpolationFactory::~InterpolationFactory() {
     interpolations.clear();
 }
 
-InterpolationFactory* InterpolationFactory::instance() {
+app::InterpolationFactory* app::InterpolationFactory::instance() {
     static InterpolationFactory factory;
     return &factory;
 }
 
-bool InterpolationFactory::registerInterpolation(const std::string &type, InterpolationCreator creator) {
+bool app::InterpolationFactory::registerInterpolation(const std::string &type, InterpolationCreator creator) {
     std::pair<std::map<std::string, InterpolationCreator>::iterator, bool> res =
         interpolations.insert(std::make_pair(type, creator));
 
     return res.second;
 }
 
-sp::shared_ptr<Interpolation> InterpolationFactory::create(const std::string& type) {
+sp::shared_ptr<app::Interpolation> app::InterpolationFactory::create(const std::string& type) {
     std::map<std::string, InterpolationCreator>::const_iterator it = interpolations.find(type);
 
     if (it != interpolations.end()) {

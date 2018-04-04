@@ -2,13 +2,13 @@
 #include "Point.h"
 #include "InterpolationException.h"
 
-static float solveLagrangeCoefficient(const std::vector<Point>& function, float argument, unsigned int order, unsigned int coefficient) {
+static float solveLagrangeCoefficient(const std::vector<app::Point>& function, float argument, unsigned int order, unsigned int coefficient) {
     float res = 1.f;
 
     unsigned int size = function.size();
 
     if (order > size || coefficient > size) {
-        throw InterpolationException(
+        throw app::InterpolationException(
             "Not enough points to resolve Lagrange coefficients"
         );
     }
@@ -20,7 +20,7 @@ static float solveLagrangeCoefficient(const std::vector<Point>& function, float 
             const float xj = function[coefficient].x;
 
             if (xj == xi) {
-                throw InterpolationException(
+                throw app::InterpolationException(
                     "Division by zero while resolving Lagrange polynom"
                 );
             }
@@ -31,7 +31,7 @@ static float solveLagrangeCoefficient(const std::vector<Point>& function, float 
     return res;
 }
 
-float LagrangePolynom::solve(const std::vector<Point>& function, float argument, unsigned int order) {
+float app::LagrangePolynom::solve(const std::vector<Point>& function, float argument, unsigned int order) {
     float res = 0.f;
 
     unsigned int size = function.size();

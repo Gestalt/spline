@@ -5,26 +5,23 @@
 
 static const std::string kLogFileName = std::string("log.txt");
 
-int Logger::logLevel = Logger::log;
+int app::Logger::logLevel = app::Logger::log;
 
-Logger::Logger()
+app::Logger::Logger()
     : logFile(sp::shared_ptr<OutputFile>()) {
         logFile = sp::make_shared<OutputFile>(kLogFileName);
 }
 
-Logger::~Logger() {
-}
-
-Logger* Logger::instance() {
+app::Logger* app::Logger::instance() {
     static Logger logger;
     return &logger;
 }
 
-void Logger::setLevel(Logger::LogLevel level) {
+void app::Logger::setLevel(Logger::LogLevel level) {
     Logger::logLevel = level;
 }
 
-void Logger::message(const std::string& str) const {
+void app::Logger::message(const std::string& str) const {
     std::ofstream& stream = logFile->stream();
     stream << str << std::endl;
 

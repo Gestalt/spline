@@ -3,6 +3,8 @@
 #include "InterpolationException.h"
 #include "Log.h"
 
+using namespace app;
+
 static void help(const std::string& error) {
     log() << error;
     log() <<

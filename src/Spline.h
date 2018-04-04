@@ -3,6 +3,8 @@
 
 #include "Defs.h"
 
+namespace app {
+
 class Interpolation;
 class TableBasedFunction;
 
@@ -16,5 +18,6 @@ class Spline {
 
 };
 
+}
 #endif
 

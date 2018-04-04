@@ -5,6 +5,8 @@
 #include <string>
 #include <map>
 
+namespace app {
+
 class Interpolation;
 class InterpolationFactory;
 
@@ -24,5 +26,6 @@ class InterpolationFactory {
         std::map<std::string, InterpolationCreator> interpolations;
 };
 
+}
 #endif
 

@@ -4,6 +4,8 @@
 #include <sstream>
 #include "Defs.h"
 
+namespace app {
+
 class OutputFile;
 
 class Logger {
@@ -14,7 +16,6 @@ class Logger {
         };
 
         static Logger* instance();
-        ~Logger();
 
         static int logLevel;
         void setLevel(LogLevel level);
@@ -48,5 +49,6 @@ class LogMessage {
 typedef LogMessage<Logger::log> log;
 typedef LogMessage<Logger::verbose> verbose;
 
+}
 #endif
 

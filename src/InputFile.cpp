@@ -1,7 +1,7 @@
 #include <sstream>
 #include "InputFile.h"
 
-InputFile::InputFile(const std::string& name) {
+app::InputFile::InputFile(const std::string& name) {
     file.open(name.c_str(), std::ifstream::in);
     if (!file.is_open()) {
         std::stringstream err;
@@ -11,12 +11,12 @@ InputFile::InputFile(const std::string& name) {
     }
 }
 
-InputFile::~InputFile() {
+app::InputFile::~InputFile() {
     if (file.is_open()) {
         file.close();
     }
 }
 
-std::istream& InputFile::stream() {
+std::istream& app::InputFile::stream() {
     return file;
 }

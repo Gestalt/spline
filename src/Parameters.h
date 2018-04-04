@@ -4,6 +4,8 @@
 #include <vector>
 #include <string>
 
+namespace app {
+
 class Parameters {
     public:
         Parameters();
@@ -27,5 +29,6 @@ class Parameters {
         bool verbose;
 };
 
+}
 #endif
 

@@ -1,7 +1,7 @@
 #include <sstream>
 #include "OutputFile.h"
 
-OutputFile::OutputFile(const std::string& name) {
+app::OutputFile::OutputFile(const std::string& name) {
     file.open(name.c_str(), std::ofstream::out);
     if (!file.is_open()) {
         std::stringstream err;
@@ -11,12 +11,12 @@ OutputFile::OutputFile(const std::string& name) {
     }
 }
 
-OutputFile::~OutputFile() {
+app::OutputFile::~OutputFile() {
     if (file.is_open()) {
         file.close();
     }
 }
 
-std::ofstream& OutputFile::stream() {
+std::ofstream& app::OutputFile::stream() {
     return file;
 }

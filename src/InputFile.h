@@ -3,6 +3,8 @@
 
 #include <fstream>
 
+namespace app {
+
 class InputFile {
     public:
         InputFile(const std::string& name);
@@ -15,5 +17,6 @@ class InputFile {
         std::ifstream file;
 };
 
+}
 #endif
 

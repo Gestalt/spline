@@ -4,18 +4,18 @@
 #include "TableBasedFunction.h"
 #include "InterpolationException.h"
 
-static bool sortPointsPredicate(const Point& lhs, const Point& rhs) {
+static bool sortPointsPredicate(const app::Point& lhs, const app::Point& rhs) {
     return lhs.x < rhs.x;
 }
 
-TableBasedFunction::TableBasedFunction(int numOfPoints)
+app::TableBasedFunction::TableBasedFunction(int numOfPoints)
     : points(std::vector<Point>()) {
         if (numOfPoints != 0) {
             points.reserve(numOfPoints);
     }
 }
 
-void TableBasedFunction::appendPoint(const Point& point) {
+void app::TableBasedFunction::appendPoint(const Point& point) {
     if (!points.empty() && point.x <= points.back().x) {
         throw InterpolationException(
             "Attempt to add an invalid argument. Unique arguments must be sorted in increasing order"
@@ -24,7 +24,7 @@ void TableBasedFunction::appendPoint(const Point& point) {
     points.push_back(point);
 }
 
-const std::vector<Point> TableBasedFunction::getNearestPoints(float arg, unsigned int N) const {
+const std::vector<app::Point> app::TableBasedFunction::getNearestPoints(float arg, unsigned int N) const {
     size_t size = points.size();
 
     if (N > size) {

@@ -12,6 +12,7 @@
 
 using namespace std;
 using namespace testing;
+using namespace app;
 
 class GetNearestPoints: public Test {
 public:

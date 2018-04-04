@@ -1,6 +1,8 @@
 #ifndef ApplicationH
 #define ApplicationH
 
+namespace app {
+
 class Parameters;
 
 class Application {
@@ -8,5 +10,6 @@ class Application {
         static void process(const Parameters& params);
 };
 
+}
 #endif
 

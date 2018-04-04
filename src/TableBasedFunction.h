@@ -3,6 +3,8 @@
 
 #include <vector>
 
+namespace app {
+
 struct Point;
 
 class TableBasedFunction {
@@ -14,5 +16,6 @@ class TableBasedFunction {
         std::vector<Point> points;
 };
 
+}
 #endif
 

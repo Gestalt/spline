@@ -3,6 +3,8 @@
 
 #include <fstream>
 
+namespace app {
+
 class OutputFile {
     public:
         OutputFile(const std::string& name);
@@ -15,5 +17,6 @@ class OutputFile {
         std::ofstream file;
 };
 
+}
 #endif
 

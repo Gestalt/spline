@@ -5,7 +5,7 @@
 
 static const std::string kDefaultOutput = std::string("output.txt");
 
-Parameters::Parameters()
+app::Parameters::Parameters()
     : params(std::vector<std::string>())
     , source(std::string())
     , destination(std::string())
@@ -14,27 +14,27 @@ Parameters::Parameters()
     , verbose(false) {
 }
 
-bool Parameters::getVerbose() const {
+bool app::Parameters::getVerbose() const {
     return verbose;
 }
 
-const std::string& Parameters::getSource() const {
+const std::string& app::Parameters::getSource() const {
     return source;
 }
 
-const std::string& Parameters::getDestination() const {
+const std::string& app::Parameters::getDestination() const {
     return destination;
 }
 
-const std::string& Parameters::getOutput() const {
+const std::string& app::Parameters::getOutput() const {
     return output;
 }
 
-const std::string& Parameters::getSpline() const {
+const std::string& app::Parameters::getSpline() const {
     return spline;
 }
 
-const std::string Parameters::parse(int argc, char** argv) {
+const std::string app::Parameters::parse(int argc, char** argv) {
 
     for (int i = 0; i < argc; i++) {
         std::stringstream ss;
@@ -76,7 +76,7 @@ const std::string Parameters::parse(int argc, char** argv) {
     return std::string();
 }
 
-const std::string Parameters::readFlag(const std::string& longOption, const std::string& shortOption) const {
+const std::string app::Parameters::readFlag(const std::string& longOption, const std::string& shortOption) const {
     std::string res;
     std::string param = shortOption.empty() ? longOption : shortOption;
 
@@ -95,7 +95,7 @@ const std::string Parameters::readFlag(const std::string& longOption, const std:
     return res;
 }
 
-const std::string Parameters::readPair(const std::string& longOption, const std::string& shortOption) const {
+const std::string app::Parameters::readPair(const std::string& longOption, const std::string& shortOption) const {
     std::string res;
     std::string param = shortOption.empty() ? longOption : shortOption;
 

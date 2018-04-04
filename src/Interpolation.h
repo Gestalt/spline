@@ -3,6 +3,8 @@
 
 #include "Defs.h"
 
+namespace app {
+
 class TableBasedFunction;
 
 class Interpolation {
@@ -11,5 +13,6 @@ class Interpolation {
         virtual const float interpolate(const sp::shared_ptr<TableBasedFunction>& function, float argument) const = 0;
 };
 
+}
 #endif
 

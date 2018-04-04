@@ -10,21 +10,21 @@
 #include "Defs.h"
 #include "Point.h"
 
-static sp::shared_ptr<TableBasedFunction> createFunctionFromFile(std::string fileName) {
-    InputFile file(fileName);
+static sp::shared_ptr<app::TableBasedFunction> createFunctionFromFile(std::string fileName) {
+    app::InputFile file(fileName);
     std::istream& stream = file.stream();
 
-    verbose() << "Loading function from: " << fileName;
+    app::verbose() << "Loading function from: " << fileName;
 
     int n = 0;
     stream >> n;
 
-    verbose() << "Total points count to append: " << n;
+    app::verbose() << "Total points count to append: " << n;
 
-    sp::shared_ptr<TableBasedFunction> res = sp::make_shared<TableBasedFunction>(n);
+    sp::shared_ptr<app::TableBasedFunction> res = sp::make_shared<app::TableBasedFunction>(n);
 
     if (!res) {
-        return sp::shared_ptr<TableBasedFunction>();
+        return sp::shared_ptr<app::TableBasedFunction>();
     }
 
     while(!stream.eof()) {
@@ -34,24 +34,24 @@ static sp::shared_ptr<TableBasedFunction> createFunctionFromFile(std::string fil
         stream >> x;
         stream >> y;
 
-        verbose() << "Appending point (x,y): " << "(" << x << "," << y << ")";
+        app::verbose() << "Appending point (x,y): " << "(" << x << "," << y << ")";
 
-        res->appendPoint(Point(x, y));
+        res->appendPoint(app::Point(x, y));
     }
 
     return res;
 }
 
 static void loadArgumentsFromFile(std::vector<float>& args, std::string fileName) {
-    InputFile file(fileName);
+    app::InputFile file(fileName);
     std::istream& stream = file.stream();
 
-    verbose() << "Loading arguments from: " << fileName;
+    app::verbose() << "Loading arguments from: " << fileName;
 
     int n = 0;
     stream >> n;
 
-    verbose() << "Total arguments to append: " << n;
+    app::verbose() << "Total arguments to append: " << n;
 
     args.reserve(n);
 
@@ -59,13 +59,13 @@ static void loadArgumentsFromFile(std::vector<float>& args, std::string fileName
         float arg;
         stream >> arg;
 
-        verbose() << "Appending argument (x): " << arg;
+        app::verbose() << "Appending argument (x): " << arg;
 
         args.push_back(arg);
     }
 }
 
-void Application::process(const Parameters& params) {
+void app::Application::process(const Parameters& params) {
     if (params.getVerbose()) {
         Logger::instance()->setLevel(Logger::verbose);
     }

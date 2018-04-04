@@ -7,7 +7,7 @@
 
 static const unsigned int kNeighborRequiredNearestPoints = 1;
 
-const float NeighborInterpolation::interpolate(const sp::shared_ptr<TableBasedFunction>& function, float argument) const {
+const float app::NeighborInterpolation::interpolate(const sp::shared_ptr<TableBasedFunction>& function, float argument) const {
     if (!function) {
         assert(false);
         return 0.f;
