@@ -1,0 +1,4 @@
+badfile
+string1
+2
+str3

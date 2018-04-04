@@ -27,11 +27,14 @@ int main(int argc, char** argv) {
         }
         Application::process(params);
     } catch (const InterpolationException& ex) {
-        log() << "An interpolation exception occured. " << ex.what();
+        log() << "<InterpolationException> occured. " << ex.what();
+        return 0;
     } catch (const std::exception& ex) {
-        log() << "An exception occured. " << ex.what();
+        log() << "<Exception> occured. " << ex.what();
+        return 0;
     } catch (...) {
-        log() << "An unknown  exception occured";
+        log() << "Unknown  exception occured";
+        return 0;
     }
     log() << "Success!";
 	return 0;
