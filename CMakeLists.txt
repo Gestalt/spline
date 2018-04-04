@@ -18,6 +18,7 @@ add_executable(${PROJECT_NAME}
 	OutputFile.cpp
 	Application.cpp
 	InterpolationException.cpp
+	Log.cpp
 )
 
 if(USE_BOOST)

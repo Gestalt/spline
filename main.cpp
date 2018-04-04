@@ -2,36 +2,37 @@
 #include "Application.h"
 #include "Parameters.h"
 #include "InterpolationException.h"
+#include "Log.h"
 
-static void help() {
-    std::cout <<
+static void help(const std::string& error) {
+    log() << error;
+    log() <<
         "      \n" <<
         "Usage:\n" <<
         "      --source|-s        file source with function points\n" <<
         "      --destination|-d   file source with arguments to be interpolated\n" <<
         "      --output|-o        output file. Default is <output.txt>\n" <<
         "      --verbose|-v       be verbose\n" <<
-        "      --help|-h          print this message\n" <<
-    std::endl;
+        "      --help|-h          print this message\n";
 }
 
 int main(int argc, char** argv) {
     Parameters params;
 
     try {
-        const std::string err = params.parse(argc, argv);
-        if (!err.empty()) {
-            std::cout << err << std::endl;
-            help();
+        const std::string error = params.parse(argc, argv);
+        if (!error.empty()) {
+            help(error);
             return 0;
         }
-        processInterpolation(params);
+        Application::process(params);
     } catch (const InterpolationException& ex) {
-        std::cout << "An interpolation exception occured. " << ex.what() << std::endl;
+        log() << "An interpolation exception occured. " << ex.what();
     } catch (const std::exception& ex) {
-        std::cout << "An exception occured. " << ex.what() << std::endl;
+        log() << "An exception occured. " << ex.what();
     } catch (...) {
-        std::cout << "An unknown  exception occured" << std::endl;
+        log() << "An unknown  exception occured";
     }
+    log() << "Success!";
 	return 0;
 }

@@ -3,6 +3,10 @@
 
 class Parameters;
 
-void processInterpolation(const Parameters& params);
+class Application {
+    public:
+        static void process(const Parameters& params);
+};
 
 #endif
+

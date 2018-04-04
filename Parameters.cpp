@@ -41,7 +41,6 @@ const std::string Parameters::parse(int argc, char** argv) {
         ss << argv[i];
 
         params.push_back(ss.str());
-        std::cout << "i=" << i << " arg=" << ss.str() << std::endl;
     };
 
     std::string help = readFlag("--help", "-h");
