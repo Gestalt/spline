@@ -67,7 +67,7 @@ static void loadArgumentsFromFile(std::vector<float>& args, std::string fileName
 
 void Application::process(const Parameters& params) {
     if (params.getVerbose()) {
-        Logger::instance()->setLevel(Logger::LogLevel::verbose);
+        Logger::instance()->setLevel(Logger::verbose);
     }
 
     sp::shared_ptr<TableBasedFunction> function = createFunctionFromFile(params.getSource());

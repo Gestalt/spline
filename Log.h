@@ -45,8 +45,8 @@ class LogMessage {
         std::ostringstream stream;
 };
 
-typedef LogMessage<Logger::LogLevel::log> log;
-typedef LogMessage<Logger::LogLevel::verbose> verbose;
+typedef LogMessage<Logger::log> log;
+typedef LogMessage<Logger::verbose> verbose;
 
 #endif
 

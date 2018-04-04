@@ -5,7 +5,7 @@
 
 static const std::string kLogFileName = std::string("log.txt");
 
-int Logger::logLevel = Logger::LogLevel::log;
+int Logger::logLevel = Logger::log;
 
 Logger::Logger()
     : logFile(sp::shared_ptr<OutputFile>()) {

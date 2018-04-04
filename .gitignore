@@ -4,3 +4,4 @@
 *.dsk
 /Win32
 /build
+/bin
