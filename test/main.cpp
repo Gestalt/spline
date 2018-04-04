@@ -158,24 +158,24 @@ TEST(AQuadricInterpolation, ReturnsValueOnParabola) {
 
 TEST(AInterpolationFactory, ThrowsErrorAtRequestingUnknownAlgorithm) {
 
-    ASSERT_THROW(InterpolationFactory::create(std::string("Unknown")), InterpolationException);
+    ASSERT_THROW(InterpolationFactory::instance()->create(std::string("Unknown")), InterpolationException);
 }
 
 TEST(AInterpolationFactory, ReturnsRequiredAlgorithm) {
 
-    Interpolation* neighborInterpolation = InterpolationFactory::create(std::string("Neighbor"));
+    Interpolation* neighborInterpolation = InterpolationFactory::instance()->create(std::string("Neighbor"));
 
     ASSERT_TRUE(dynamic_cast<NeighborInterpolation*>(neighborInterpolation));
 
     delete neighborInterpolation;
 
-    Interpolation* linearInterpolation = InterpolationFactory::create(std::string("Linear"));
+    Interpolation* linearInterpolation = InterpolationFactory::instance()->create(std::string("Linear"));
 
     ASSERT_TRUE(dynamic_cast<LinearInterpolation*>(linearInterpolation));
 
     delete linearInterpolation;
 
-    Interpolation* quadricInterpolation = InterpolationFactory::create(std::string("Quadric"));
+    Interpolation* quadricInterpolation = InterpolationFactory::instance()->create(std::string("Quadric"));
 
     ASSERT_TRUE(dynamic_cast<QuadricInterpolation*>(quadricInterpolation));
 

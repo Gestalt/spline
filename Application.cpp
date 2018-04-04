@@ -58,7 +58,7 @@ void processInterpolation(const Parameters& params) {
     loadFunctionFromFile(function, params.getSource());
     loadArgumentsFromFile(args, params.getDestination());
 
-    Interpolation* interpolation = InterpolationFactory::create(params.getSpline());
+    Interpolation* interpolation = InterpolationFactory::instance()->create(params.getSpline());
     Spline spline(interpolation);
 
     OutputFile file(params.getOutput());
