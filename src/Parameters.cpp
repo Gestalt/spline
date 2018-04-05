@@ -78,13 +78,14 @@ const std::string app::Parameters::parse(int argc, char** argv) {
 
 const std::string app::Parameters::readFlag(const std::string& longOption, const std::string& shortOption) const {
     std::string res;
-    std::string param = shortOption.empty() ? longOption : shortOption;
 
-    if (param.empty()) {
-        return res;
+    std::vector<std::string>::const_iterator it;
+
+    it = std::find(params.begin(), params.end(), shortOption);
+
+    if (it == params.end()) {
+        it = std::find(params.begin(), params.end(), longOption);
     }
-
-    std::vector<std::string>::const_iterator it = std::find(params.begin(), params.end(), param);
 
     if (it == params.end()) {
         return res;
@@ -97,13 +98,14 @@ const std::string app::Parameters::readFlag(const std::string& longOption, const
 
 const std::string app::Parameters::readPair(const std::string& longOption, const std::string& shortOption) const {
     std::string res;
-    std::string param = shortOption.empty() ? longOption : shortOption;
 
-    if (param.empty()) {
-        return res;
+    std::vector<std::string>::const_iterator it;
+
+    it = std::find(params.begin(), params.end(), shortOption);
+
+    if (it == params.end()) {
+        it = std::find(params.begin(), params.end(), longOption);
     }
-
-    std::vector<std::string>::const_iterator it = std::find(params.begin(), params.end(), param);
 
     if (it == params.end()) {
         return res;

@@ -15,12 +15,14 @@ echo "Integration tests running ..."
 
 release\spline
 release\spline -h
+release\spline -help
 
 for %%x in ( Neighbor Linear Quadric Unknown ) do (
 
-release\spline -s resources\notfound.txt -d resources\dest.txt --spline %%x -v
-release\spline -s resources\src.txt -d resources\dest.txt --spline %%x -v
+release\spline --source resources\src.txt --destination resources\dest.txt --spline %%x --verbose --output custom.txt
+release\spline --source resources\src.txt --destination resources\dest.txt --spline %%x --verbose
 release\spline -s resources\src.txt -d resources\notfound.txt --spline %%x -v
+release\spline -s resources\notfound.txt -d resources\dest.txt --spline %%x -v
 release\spline -s resources\src_bad.txt -d resources\dest_bad.txt --spline %%x -v
 release\spline -s resources\src_empty.txt -d resources\dest_empty.txt --spline %%x -v
 release\spline -s resources\src_toofew.txt -d resources\dest_toofew.txt --spline %%x -v
